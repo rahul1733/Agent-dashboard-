@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhonePe Premium Intelligence Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --pp-purple: #5f259f;
+  --pp-purple-dark: #3d1566;
+  --pp-purple-mid: #7c3aed;
+  --pp-purple-light: #a855f7;
+  --pp-blue: #2563eb;
+  --pp-cyan: #06b6d4;
+  --pp-green: #22c55e;
+  --pp-orange: #f97316;
+  --pp-yellow: #eab308;
+  --pp-red: #ef4444;
+  --pp-gold: #f59e0b;
+  --bg: #0d0a1a;
+  --bg2: #130f24;
+  --bg3: #1a1430;
+  --card: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --text: #f1f0f7;
+  --text-muted: rgba(241,240,247,0.5);
+  --glow: 0 0 40px rgba(95,37,159,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(95,37,159,0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(37,99,235,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 60% 40%, rgba(6,182,212,0.06) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 1800px; margin: auto; padding: 20px; position: relative; z-index: 1; }
+
+/* ====== LOADER ====== */
+#pageLoader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  gap: 24px;
+}
+#pageLoader.hidden { display: none !important; }
+
+.loader-logo {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, var(--pp-purple), var(--pp-purple-mid));
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 0 60px rgba(95,37,159,0.6);
+  animation: pulse-logo 1.5s ease-in-out infinite;
+}
+@keyframes pulse-logo {
+  0%,100% { transform: scale(1); box-shadow: 0 0 60px rgba(95,37,159,0.6); }
+  50% { transform: scale(1.08); box-shadow: 0 0 80px rgba(95,37,159,0.9); }
+}
+.loader-bar {
+  width: 280px; height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px; overflow: hidden;
+}
+.loader-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--pp-purple), var(--pp-cyan));
+  border-radius: 4px;
+  animation: load-bar 2s ease forwards;
+}
+@keyframes load-bar { to { width: 100%; } }
+.loader-text { font-size: 18px; font-weight: 600; color: var(--text-muted); letter-spacing: 2px; }
+
+/* ====== HEADER ====== */
+.header {
+  background: linear-gradient(135deg, var(--pp-purple-dark) 0%, var(--pp-purple) 50%, var(--pp-purple-mid) 100%);
+  padding: 28px 36px;
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 20px 60px rgba(95,37,159,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+}
+.header::before {
+  content: '';
+  position: absolute; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  right: -150px; top: -200px; border-radius: 50%;
+}
+.header::after {
+  content: '';
+  position: absolute; width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
+  left: 20%; bottom: -100px;
+}
+.header-left { display: flex; align-items: center; gap: 20px; position: relative; z-index: 2; }
+.pp-logo {
+  width: 60px; height: 60px;
+  background: white;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.pp-logo svg { width: 42px; height: 42px; }
+.header-title h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+.header-title p { font-size: 14px; opacity: 0.75; margin-top: 4px; font-weight: 400; }
+.header-right {
+  display: flex; gap: 12px; align-items: center; position: relative; z-index: 2; flex-wrap: wrap;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12);
+  padding: 10px 18px; border-radius: 50px;
+  font-size: 14px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.live-dot {
+  width: 10px; height: 10px;
+  background: var(--pp-green);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+  box-shadow: 0 0 8px var(--pp-green);
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+.time-badge {
+  background: rgba(255,255,255,0.12);
+  padding: 10px 18px; border-radius: 50px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ====== SUMMARY STRIP ====== */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+.strip-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+  position: relative; overflow: hidden;
+}
+.strip-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+}
+.strip-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); }
+.strip-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.strip-icon.purple { background: rgba(95,37,159,0.3); box-shadow: 0 0 20px rgba(95,37,159,0.3); }
+.strip-icon.green { background: rgba(34,197,94,0.2); box-shadow: 0 0 20px rgba(34,197,94,0.2); }
+.strip-icon.red { background: rgba(239,68,68,0.2); box-shadow: 0 0 20px rgba(239,68,68,0.2); }
+.strip-icon.orange { background: rgba(249,115,22,0.2); box-shadow: 0 0 20px rgba(249,115,22,0.2); }
+.strip-icon.blue { background: rgba(37,99,235,0.2); box-shadow: 0 0 20px rgba(37,99,235,0.2); }
+.strip-info {}
+.strip-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+.strip-value { font-size: 32px; font-weight: 800; margin-top: 4px; line-height: 1; }
+.strip-value.purple { color: var(--pp-purple-light); }
+.strip-value.green { color: var(--pp-green); }
+.strip-value.red { color: var(--pp-red); }
+.strip-value.orange { color: var(--pp-orange); }
+.strip-value.blue { color: #60a5fa; }
+
+/* ====== SEARCH ====== */
+.search-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 28px;
+  margin-top: 20px;
+  backdrop-filter: blur(20px);
+}
+.search-title { font-size: 20px; font-weight: 700; margin-bottom: 18px; }
+.search-title span { color: var(--pp-purple-light); }
+.search-row { display: flex; gap: 14px; flex-wrap: wrap; }
+.search-input-wrap { flex: 1; position: relative; min-width: 240px; }
+.search-input-wrap input {
+  width: 100%; padding: 18px 20px 18px 54px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  color: var(--text); font-size: 16px; font-family: 'Outfit', sans-serif;
+  outline: none; transition: all 0.3s;
+}
+.search-input-wrap input::placeholder { color: var(--text-muted); }
+.search-input-wrap input:focus {
+  border-color: var(--pp-purple-light);
+  background: rgba(95,37,159,0.1);
+  box-shadow: 0 0 0 3px rgba(95,37,159,0.2);
+}
+.search-input-icon {
+  position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+  font-size: 20px; pointer-events: none;
+}
+.btn-search {
+  padding: 18px 32px;
+  background: linear-gradient(135deg, var(--pp-purple), var(--pp-purple-mid));
+  border: none; border-radius: 16px;
+  color: white; font-size: 16px; font-weight: 700; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 8px 24px rgba(95,37,159,0.4);
+  white-space: nowrap;
+}
+.btn-search:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(95,37,159,0.6); }
+.btn-back {
+  padding: 12px 22px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: white; font-size: 14px; font-weight: 600; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-back:hover { background: rgba(255,255,255,0.14); }
+
+/* ====== QUICK HINTS ====== */
+.search-hints { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+.hint-tag {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50px;
+  font-size: 12px; color: var(--text-muted);
+}
+.hint-tag strong { color: var(--pp-purple-light); }
+
+/* ====== SECTION HEADER ====== */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+}
+.section-title {
+  font-size: 20px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::before {
+  content: '';
+  width: 4px; height: 24px;
+  background: linear-gradient(180deg, var(--pp-purple-light), var(--pp-cyan));
+  border-radius: 4px;
+}
+
+/* ====== PROFILE ====== */
+.profile-card {
+  background: linear-gradient(135deg, var(--pp-purple-dark) 0%, #2a1050 50%, #1a0d40 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 28px;
+  padding: 32px;
+  margin-top: 20px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(95,37,159,0.3);
+}
+.profile-card::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+  right: -100px; top: -150px;
+}
+.profile-card::after {
+  content: '';
+  position: absolute;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+  left: 30%; bottom: -80px;
+}
+.profile-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-wrap: wrap; gap: 20px; position: relative; z-index: 2;
+}
+.profile-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.agent-avatar {
+  width: 72px; height: 72px;
+  background: linear-gradient(135deg, var(--pp-purple-mid), var(--pp-cyan));
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(124,58,237,0.5);
+}
+.agent-info {}
+.agent-name { font-size: 30px; font-weight: 800; }
+.agent-sub { font-size: 14px; color: rgba(255,255,255,0.65); margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.agent-sub span { display: flex; align-items: center; gap: 4px; }
+.rank-display {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 22px;
+  padding: 20px 28px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.rank-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+.rank-num { font-size: 44px; font-weight: 900; color: var(--pp-gold); margin-top: 4px; line-height: 1; }
+.rank-sub { font-size: 12px; opacity: 0.6; margin-top: 6px; }
+.profile-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+  position: relative; z-index: 2;
+}
+.meta-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 16px 20px;
+  transition: all 0.3s;
+}
+.meta-box:hover { background: rgba(255,255,255,0.12); }
+.meta-label { font-size: 12px; opacity: 0.65; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.meta-value { font-size: 18px; font-weight: 700; margin-top: 6px; }
+
+/* ====== KPI GRID ====== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pp-purple), var(--pp-cyan));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.kpi-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+.kpi-card:hover::after { opacity: 1; }
+.kpi-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.kpi-value { font-size: 40px; font-weight: 900; color: var(--pp-purple-light); margin-top: 8px; line-height: 1; }
+.kpi-badge { display: inline-block; margin-top: 10px; padding: 5px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; }
+.kpi-badge.green { background: rgba(34,197,94,0.15); color: var(--pp-green); }
+.kpi-badge.red { background: rgba(239,68,68,0.15); color: var(--pp-red); }
+.kpi-badge.blue { background: rgba(37,99,235,0.15); color: #60a5fa; }
+.kpi-badge.yellow { background: rgba(234,179,8,0.15); color: var(--pp-yellow); }
+
+/* ====== TWO COL ====== */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+.three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px; }
+@media(max-width:900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+/* ====== GLASS CARD ====== */
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 28px;
+  backdrop-filter: blur(20px);
+}
+
+/* ====== CALENDAR ====== */
+.cal-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7,1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cal-day-header {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 8px;
+  text-transform: uppercase;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+.day-cell {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 12px;
+  min-height: 130px;
+  transition: all 0.2s;
+  position: relative;
+}
+.day-cell:hover { background: rgba(255,255,255,0.06); }
+.day-cell.green { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.06); }
+.day-cell.orange { border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.05); }
+.day-cell.red { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.05); }
+.day-cell.sunday { border-color: rgba(249,115,22,0.4); background: rgba(249,115,22,0.05); }
+.day-cell.today { box-shadow: 0 0 0 2px var(--pp-purple-light); }
+.today-pill {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--pp-purple-light);
+  color: white; font-size: 9px; font-weight: 800;
+  padding: 3px 7px; border-radius: 8px; letter-spacing: 1px;
+}
+.day-num-row { display: flex; justify-content: space-between; align-items: center; }
+.day-name { font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+.day-num { font-size: 18px; font-weight: 800; }
+.day-cell.green .day-name, .day-cell.green .day-num { color: var(--pp-green); }
+.day-cell.orange .day-name, .day-cell.orange .day-num { color: var(--pp-yellow); }
+.day-cell.red .day-name, .day-cell.red .day-num { color: var(--pp-red); }
+.day-cell.sunday .day-name, .day-cell.sunday .day-num { color: var(--pp-orange); }
+.day-tp, .day-ci {
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 8px;
+}
+.day-tp-label, .day-ci-label { font-size: 10px; color: var(--text-muted); }
+.day-tp-val { font-size: 22px; font-weight: 800; margin-top: 2px; }
+.day-ci-val { font-size: 16px; font-weight: 700; margin-top: 2px; color: #60a5fa; }
+.day-status {
+  margin-top: 8px;
+  font-size: 10px; font-weight: 700;
+  padding: 5px 8px; border-radius: 8px;
+  text-align: center;
+}
+.day-cell.green .day-status { background: rgba(34,197,94,0.2); color: var(--pp-green); }
+.day-cell.orange .day-status { background: rgba(234,179,8,0.2); color: var(--pp-yellow); }
+.day-cell.red .day-status { background: rgba(239,68,68,0.2); color: var(--pp-red); }
+.day-cell.sunday .day-status { background: rgba(249,115,22,0.2); color: var(--pp-orange); }
+
+/* ====== LEADERBOARD ====== */
+.lb-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.2s;
+}
+.lb-item:last-child { border-bottom: none; }
+.lb-item:hover { background: rgba(255,255,255,0.02); border-radius: 14px; padding-left: 10px; margin: 0 -10px; }
+.lb-rank {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; flex-shrink: 0;
+}
+.lb-rank.gold { background: rgba(245,158,11,0.2); color: var(--pp-gold); }
+.lb-rank.silver { background: rgba(148,163,184,0.2); color: #94a3b8; }
+.lb-rank.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; }
+.lb-rank.other { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.lb-info { flex: 1 }
+.lb-name { font-size: 16px; font-weight: 700; }
+.lb-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.lb-stats { text-align: right; }
+.lb-tp { font-size: 24px; font-weight: 800; color: var(--pp-purple-light); }
+.lb-ci { font-size: 13px; color: #60a5fa; margin-top: 4px; }
+
+/* ====== PROGRESS BARS ====== */
+.progress-section { margin-top: 20px; }
+.progress-item { margin-bottom: 20px; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.progress-label { font-size: 14px; font-weight: 600; }
+.progress-val { font-size: 14px; font-weight: 700; color: var(--pp-purple-light); }
+.progress-bar { height: 8px; background: rgba(255,255,255,0.06); border-radius: 50px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 50px; transition: width 1s ease; }
+.progress-fill.purple { background: linear-gradient(90deg, var(--pp-purple), var(--pp-purple-light)); }
+.progress-fill.cyan { background: linear-gradient(90deg, var(--pp-cyan), #38bdf8); }
+.progress-fill.green { background: linear-gradient(90deg, #16a34a, var(--pp-green)); }
+
+/* ====== STREAK ====== */
+.streak-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.streak-dot {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.streak-dot.fire { background: rgba(34,197,94,0.2); color: var(--pp-green); border-color: rgba(34,197,94,0.3); }
+.streak-dot.miss { background: rgba(239,68,68,0.1); color: var(--pp-red); border-color: rgba(239,68,68,0.2); }
+.streak-dot.off { background: rgba(249,115,22,0.1); color: var(--pp-orange); border-color: rgba(249,115,22,0.2); }
+
+/* ====== ACHIEVEMENT BADGES ====== */
+.badges-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+.badge-item {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 90px;
+  transition: all 0.3s;
+}
+.badge-item:hover { background: rgba(255,255,255,0.09); transform: translateY(-2px); }
+.badge-icon { font-size: 28px; }
+.badge-name { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-weight: 600; }
+.badge-item.earned { border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.08); }
+.badge-item.earned .badge-name { color: var(--pp-gold); }
+
+/* ====== MINI INSIGHTS ====== */
+.insight-box {
+  background: rgba(95,37,159,0.15);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.insight-text { font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.85); }
+.insight-text strong { color: var(--pp-purple-light); }
+
+/* ====== TEAM TABLE ====== */
+.team-table { width: 100%; border-collapse: collapse; }
+.team-table th {
+  background: rgba(95,37,159,0.3);
+  color: rgba(255,255,255,0.8);
+  padding: 14px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.team-table th:first-child { border-radius: 12px 0 0 12px; }
+.team-table th:last-child { border-radius: 0 12px 12px 0; }
+.team-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 14px;
+}
+.team-table tr:hover td { background: rgba(255,255,255,0.03); }
+.ojt-done { background: rgba(34,197,94,0.15); color: var(--pp-green); padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ojt-pend { background: rgba(239,68,68,0.15); color: var(--pp-red); padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.risk-yes { background: rgba(239,68,68,0.15); color: var(--pp-red); padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+.risk-no { background: rgba(34,197,94,0.15); color: var(--pp-green); padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+.perf-high { color: var(--pp-green); font-weight: 700; }
+.perf-med { color: var(--pp-yellow); font-weight: 700; }
+.perf-low { color: var(--pp-red); font-weight: 700; }
+.sort-btn { cursor: pointer; user-select: none; }
+.sort-btn:hover { color: white; }
+
+/* ====== CHART CONTAINERS ====== */
+.chart-wrap { position: relative; }
+
+/* ====== FOOTER ====== */
+.footer {
+  text-align: center;
+  padding: 30px 0 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.footer strong { color: var(--pp-purple-light); }
+
+/* ====== SCROLLBAR ====== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+::-webkit-scrollbar-thumb { background: rgba(95,37,159,0.5); border-radius: 10px; }
+
+.hidden { display: none !important; }
+
+/* ====== RESPONSIVE ====== */
+@media(max-width:1200px) { .summary-strip { grid-template-columns: repeat(3,1fr); } }
+@media(max-width:768px) {
+  .summary-strip { grid-template-columns: repeat(2,1fr); }
+  .cal-grid { grid-template-columns: repeat(4,1fr); }
+  .cal-day-headers { grid-template-columns: repeat(4,1fr); }
+  .header { padding: 20px; }
+  .header-title h1 { font-size: 20px; }
+  .agent-name { font-size: 22px; }
+}
+@media(max-width:480px) {
+  .summary-strip { grid-template-columns: 1fr 1fr; }
+}
+
+/* ====== ANIMATIONS ====== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.5s ease forwards; }
+.fade-up-2 { animation: fadeUp 0.5s 0.1s ease forwards; opacity: 0; }
+.fade-up-3 { animation: fadeUp 0.5s 0.2s ease forwards; opacity: 0; }
+.fade-up-4 { animation: fadeUp 0.5s 0.3s ease forwards; opacity: 0; }
+
+/* ====== EXPORT BTN ====== */
+.export-btn {
+  padding: 10px 18px;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.3);
+  border-radius: 12px;
+  color: var(--pp-green);
+  font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: all 0.3s;
+}
+.export-btn:hover { background: rgba(34,197,94,0.2); }
+
+/* ====== SEARCH FILTER ====== */
+.filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-input {
+  flex: 1; min-width: 160px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif;
+  outline: none;
+}
+.filter-input:focus { border-color: var(--pp-purple-light); }
+.filter-select {
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: var(--text); font-size: 14px; font-family: 'Outfit', sans-serif;
+  outline: none;
+}
+.filter-select option { background: #1a1430; }
+
+/* scroll container for table */
+.table-scroll { overflow-x: auto; border-radius: 16px; }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="pageLoader">
+  <div class="loader-logo">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="60" height="60" rx="14" fill="white"/>
+      <path d="M12 18C12 14.686 14.686 12 18 12H30C36.627 12 42 17.373 42 24C42 30.627 36.627 36 30 36H24V48H18C14.686 48 12 45.314 12 42V18Z" fill="#5f259f"/>
+      <circle cx="30" cy="24" r="6" fill="white"/>
+    </svg>
+  </div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div class="loader-text">Loading Intelligence...</div>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header fade-up">
+    <div class="header-left">
+      <div class="pp-logo">
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 14C6 9.582 9.582 6 14 6H32C42.493 6 51 14.507 51 25C51 35.493 42.493 44 32 44H24V54H14C9.582 54 6 50.418 6 46V14Z" fill="#5f259f"/>
+          <circle cx="32" cy="25" r="9" fill="white"/>
+        </svg>
+      </div>
+      <div class="header-title">
+        <h1>PhonePe Intelligence Dashboard</h1>
+        <p>Premium Analytics • Agent • TSM • ASM • SH Performance</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+      <div class="time-badge" id="liveTime">--:--:--</div>
+      <button class="btn-back hidden" id="backBtn" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip fade-up-2" id="summaryStrip">
+    <div class="strip-card">
+      <div class="strip-icon purple">👥</div>
+      <div class="strip-info">
+        <div class="strip-label">Total Agents</div>
+        <div class="strip-value purple" id="totalAgents">—</div>
+      </div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon green">✅</div>
+      <div class="strip-info">
+        <div class="strip-label">OJT Done</div>
+        <div class="strip-value green" id="ojtDone">—</div>
+      </div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon red">🔴</div>
+      <div class="strip-info">
+        <div class="strip-label">OJT Pending</div>
+        <div class="strip-value red" id="ojtPending">—</div>
+      </div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon orange">⚠️</div>
+      <div class="strip-info">
+        <div class="strip-label">At Risk</div>
+        <div class="strip-value orange" id="riskAgents">—</div>
+      </div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon blue">🔥</div>
+      <div class="strip-info">
+        <div class="strip-label">Active Agents</div>
+        <div class="strip-value blue" id="activeAgents">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-card fade-up-3" id="searchCard">
+    <div class="search-title">🔍 Login to <span>Dashboard</span></div>
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <span class="search-input-icon">🔐</span>
+        <input type="text" id="searchInput" placeholder="Enter Mobile / TSM ID / ASM ID / SH ID" onkeydown="if(event.key==='Enter')searchDashboard()">
+      </div>
+      <button class="btn-search" onclick="searchDashboard()">Open Dashboard →</button>
+    </div>
+    <div class="search-hints">
+      <div class="hint-tag"><strong>10 digits</strong> → Agent</div>
+      <div class="hint-tag"><strong>TSM ID</strong> → Team View</div>
+      <div class="hint-tag"><strong>4xxxxx</strong> → ASM View</div>
+      <div class="hint-tag"><strong>1xxxxx</strong> → SH View</div>
+    </div>
+  </div>
+
+  <!-- AGENT DASHBOARD -->
+  <div id="agentDashboard" class="hidden">
+
+    <!-- Profile -->
+    <div class="profile-card fade-up">
+      <div class="profile-top">
+        <div class="profile-left">
+          <div class="agent-avatar" id="agentAvatar">👤</div>
+          <div class="agent-info">
+            <div class="agent-name" id="agentName">Agent Name</div>
+            <div class="agent-sub">
+              <span id="agentOjtBadge">—</span>
+              <span id="agentRiskBadge" style="display:none;"></span>
+            </div>
+          </div>
+        </div>
+        <div class="rank-display">
+          <div class="rank-label">🏆 ALL-INDIA RANK</div>
+          <div class="rank-num" id="agentRank">#—</div>
+          <div class="rank-sub">Based on Common TP</div>
+        </div>
+      </div>
+      <div class="profile-meta">
+        <div class="meta-box"><div class="meta-label">📱 Mobile</div><div class="meta-value" id="agentMobile">—</div></div>
+        <div class="meta-box"><div class="meta-label">👔 TSM</div><div class="meta-value" id="tsmName">—</div></div>
+        <div class="meta-box"><div class="meta-label">👨‍💼 ASM</div><div class="meta-value" id="asmName">—</div></div>
+        <div class="meta-box"><div class="meta-label">🏢 SH</div><div class="meta-value" id="shName">—</div></div>
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid fade-up-2">
+      <div class="kpi-card">
+        <div class="kpi-label">🎯 Total TP</div>
+        <div class="kpi-value" id="totalTp">0</div>
+        <div class="kpi-badge blue" id="totalTpBadge">Month Total</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📍 Active Days</div>
+        <div class="kpi-value" id="commonCheckin">0</div>
+        <div class="kpi-badge blue">Days with Checkin</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔥 Common TP</div>
+        <div class="kpi-value" id="commonTp">0</div>
+        <div class="kpi-badge green" id="commonTpBadge">Month Score</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⚡ Today's TP</div>
+        <div class="kpi-value" id="todayTp">0</div>
+        <div class="kpi-badge yellow" id="todayTpBadge">Today</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📌 Today's Checkin</div>
+        <div class="kpi-value" id="todayCheckin">0</div>
+        <div class="kpi-badge blue" id="todayCheckinBadge">Today</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">📊 Avg Daily TP</div>
+        <div class="kpi-value" id="avgDailyTp">0</div>
+        <div class="kpi-badge blue">Per Active Day</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🏆 Best Day TP</div>
+        <div class="kpi-value" id="bestDayTp">0</div>
+        <div class="kpi-badge green">Personal Best</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔥 Current Streak</div>
+        <div class="kpi-value" id="currentStreak">0</div>
+        <div class="kpi-badge yellow">Active Days</div>
+      </div>
+    </div>
+
+    <!-- Insights + Progress -->
+    <div class="two-col fade-up-3">
+      <div class="glass-card">
+        <div class="section-title">🧠 AI Insights</div>
+        <div id="insightsContainer" style="margin-top:16px;"></div>
+      </div>
+      <div class="glass-card">
+        <div class="section-title">📊 Performance Health</div>
+        <div class="progress-section" id="healthBars"></div>
+        <div style="margin-top:20px;">
+          <div class="section-title" style="font-size:15px;">🔥 Streak Tracker</div>
+          <div class="streak-row" id="streakRow"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="glass-card fade-up-4" style="margin-top:20px;">
+      <div class="section-header">
+        <div class="section-title">🏅 Achievements</div>
+        <div style="font-size:13px;color:var(--text-muted);">Earned badges this month</div>
+      </div>
+      <div class="badges-row" id="badgesRow"></div>
+    </div>
+
+    <!-- Chart + Leaderboard -->
+    <div class="three-col fade-up" style="margin-top:20px;">
+      <div class="glass-card">
+        <div class="section-header">
+          <div class="section-title">📈 TP Trend — Last 14 Days</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="tpChart" height="120"></canvas>
+        </div>
+      </div>
+      <div class="glass-card">
+        <div class="section-title">🏆 Top 5 Leaderboard</div>
+        <div id="leaderboard" style="margin-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="glass-card fade-up-2" style="margin-top:20px;">
+      <div class="section-header">
+        <div class="section-title">📅 Monthly Performance Calendar</div>
+        <div id="calMonthLabel" style="font-size:14px;font-weight:600;color:var(--text-muted);"></div>
+      </div>
+      <div class="cal-day-headers">
+        <div class="cal-day-header">SUN</div>
+        <div class="cal-day-header">MON</div>
+        <div class="cal-day-header">TUE</div>
+        <div class="cal-day-header">WED</div>
+        <div class="cal-day-header">THU</div>
+        <div class="cal-day-header">FRI</div>
+        <div class="cal-day-header">SAT</div>
+      </div>
+      <div class="cal-grid" id="calendarContainer"></div>
+    </div>
+
+    <!-- Donut Chart -->
+    <div class="two-col fade-up-3" style="margin-top:20px;">
+      <div class="glass-card">
+        <div class="section-title">🥧 TP Distribution</div>
+        <canvas id="tpDonut" height="220" style="max-width:260px;margin:20px auto;display:block;"></canvas>
+      </div>
+      <div class="glass-card">
+        <div class="section-title">📊 Weekly TP Breakdown</div>
+        <canvas id="weeklyChart" height="220"></canvas>
+      </div>
+    </div>
+
+  </div><!-- /agentDashboard -->
+
+  <!-- TEAM DASHBOARD -->
+  <div id="teamDashboard" class="hidden">
+
+    <div class="kpi-grid fade-up" style="margin-top:20px;">
+      <div class="kpi-card">
+        <div class="kpi-label">👥 Total Agents</div>
+        <div class="kpi-value" id="teamAgents">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">✅ OJT Done</div>
+        <div class="kpi-value green" style="color:var(--pp-green)" id="teamDone">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔴 OJT Pending</div>
+        <div class="kpi-value red" style="color:var(--pp-red)" id="teamPending">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">⚠️ At Risk</div>
+        <div class="kpi-value orange" style="color:var(--pp-orange)" id="teamRisk">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🔥 Active Agents</div>
+        <div class="kpi-value blue" style="color:#60a5fa" id="teamActive">0</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">🎯 Team Total TP</div>
+        <div class="kpi-value" id="teamTotalTp">0</div>
+      </div>
+    </div>
+
+    <!-- Team Chart -->
+    <div class="two-col fade-up-2" style="margin-top:20px;">
+      <div class="glass-card">
+        <div class="section-title">📊 OJT Completion Rate</div>
+        <canvas id="teamDonut" height="200" style="max-width:220px;margin:20px auto;display:block;"></canvas>
+      </div>
+      <div class="glass-card">
+        <div class="section-title">📈 Team TP Distribution</div>
+        <canvas id="teamBar" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Team Table -->
+    <div class="glass-card fade-up-3" style="margin-top:20px;">
+      <div class="section-header">
+        <div class="section-title">📋 Team Agent Details</div>
+        <button class="export-btn" onclick="exportTeamCSV()">⬇ Export CSV</button>
+      </div>
+      <div class="filter-row">
+        <input class="filter-input" id="filterName" placeholder="🔍 Search agent name..." oninput="filterTeamTable()">
+        <select class="filter-select" id="filterOjt" onchange="filterTeamTable()">
+          <option value="">All OJT</option>
+          <option value="done">✅ Done</option>
+          <option value="pending">🔴 Pending</option>
+        </select>
+        <select class="filter-select" id="filterRisk" onchange="filterTeamTable()">
+          <option value="">All Status</option>
+          <option value="risk">⚠️ At Risk</option>
+          <option value="active">✅ Active</option>
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table class="team-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Agent Name</th>
+              <th>Mobile</th>
+              <th>OJT</th>
+              <th class="sort-btn" onclick="sortTeam('checkin')">Checkins ↕</th>
+              <th class="sort-btn" onclick="sortTeam('commonTp')">Common TP ↕</th>
+              <th>Risk</th>
+              <th>Performance</th>
+            </tr>
+          </thead>
+          <tbody id="teamTable"></tbody>
+        </table>
+      </div>
+      <div id="teamPagination" style="margin-top:16px;text-align:center;color:var(--text-muted);font-size:13px;"></div>
+    </div>
+
+  </div><!-- /teamDashboard -->
+
+  <div class="footer">Powered by <strong>Rahul Bhatt</strong> • Regional Capability Manager • PhonePe Premium Intelligence</div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbx6YLBLALuLIPDFlhWxGYsOuzsQk-q1NXJoVpUqtsUWg8Cj8jsU8A7-aXDZc0oV1KuKJg/exec";
+let agents = [];
+let teamData = [];
+let sortDir = {};
+let tpChartInst = null, donutInst = null, weeklyInst = null, teamDonutInst = null, teamBarInst = null;
+
+// CLOCK
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveTime').textContent =
+    now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+setInterval(updateClock, 1000); updateClock();
+
+// LOADER
+function showLoader() { document.getElementById('pageLoader').classList.remove('hidden'); }
+function hideLoader() { document.getElementById('pageLoader').classList.add('hidden'); }
+
+// LOAD
+async function loadData() {
+  showLoader();
+  try {
+    const r = await fetch(API);
+    agents = await r.json();
+    loadMainSummary();
+    renderLeaderboard();
+  } catch(e) {
+    console.error(e);
+  }
+  hideLoader();
+}
+loadData();
+
+// SUMMARY
+function loadMainSummary() {
+  let done=0, pend=0, risk=0, active=0;
+  agents.forEach(a => {
+    String(a.ojt)==='1' ? done++ : pend++;
+    Number(a.summaryCheckin||0)===0 ? risk++ : active++;
+  });
+  document.getElementById('totalAgents').textContent = agents.length;
+  document.getElementById('ojtDone').textContent = done;
+  document.getElementById('ojtPending').textContent = pend;
+  document.getElementById('riskAgents').textContent = risk;
+  document.getElementById('activeAgents').textContent = active;
+}
+
+// SEARCH
+async function searchDashboard() {
+  const input = document.getElementById('searchInput').value.trim();
+  if (!input) { alert('Enter Login ID'); return; }
+  showLoader();
+  if (input.length >= 10 && /^\d+$/.test(input)) {
+    await openAgentDashboard(input);
+  } else {
+    await openTeamDashboard(input);
+  }
+  hideLoader();
+}
+
+function goBack() {
+  document.getElementById('agentDashboard').classList.add('hidden');
+  document.getElementById('teamDashboard').classList.add('hidden');
+  document.getElementById('searchCard').style.display = '';
+  document.getElementById('summaryStrip').style.display = '';
+  document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('searchInput').value = '';
+}
+
+// ====== AGENT DASHBOARD ======
+async function openAgentDashboard(mobile) {
+  try {
+    const r = await fetch(API + '?mobile=' + mobile);
+    const data = await r.json();
+    if (!data.length) { alert('No Agent Found'); return; }
+    const a = data[0];
+
+    document.getElementById('searchCard').style.display = 'none';
+    document.getElementById('summaryStrip').style.display = 'none';
+    document.getElementById('agentDashboard').classList.remove('hidden');
+    document.getElementById('teamDashboard').classList.add('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+
+    // Profile
+    const initials = (a.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('agentAvatar').textContent = initials || '👤';
+    document.getElementById('agentName').textContent = a.name || '—';
+    document.getElementById('agentMobile').textContent = a.mobile || '—';
+    document.getElementById('tsmName').textContent = a.tsm || '—';
+    document.getElementById('asmName').textContent = a.asm || '—';
+    document.getElementById('shName').textContent = a.sh || '—';
+
+    // OJT Badge
+    const ojtOk = String(a.ojt)==='1';
+    document.getElementById('agentOjtBadge').innerHTML = ojtOk
+      ? `<span style="background:rgba(34,197,94,0.2);color:var(--pp-green);padding:5px 14px;border-radius:50px;font-size:13px;font-weight:700;">✅ OJT Done</span>`
+      : `<span style="background:rgba(239,68,68,0.2);color:var(--pp-red);padding:5px 14px;border-radius:50px;font-size:13px;font-weight:700;">🔴 OJT Pending</span>`;
+
+    const tpArr = a.daywiseTp || [];
+    const ciArr = a.daywiseCheckin || [];
+    const ctpArr = a.daywiseCommonTp || [];
+
+    let totalTp=0, totalCheckin=0, commonTp=0;
+    tpArr.forEach(v => totalTp += Number(v||0));
+    ciArr.forEach(v => { if(Number(v||0)>0) totalCheckin++; });
+    ctpArr.forEach(v => commonTp += Number(v||0));
+
+    const today = new Date().getDate()-1;
+    const todayTp = Number(tpArr[today]||0);
+    const todayCheckin = Number(ciArr[today]||0);
+
+    // Best day & avg
+    let bestDayTp = 0;
+    let activeDays = 0;
+    tpArr.forEach(v => {
+      const n = Number(v||0);
+      if(n > bestDayTp) bestDayTp = n;
+      if(n > 0) activeDays++;
+    });
+    const avgDaily = activeDays > 0 ? (totalTp/activeDays).toFixed(1) : 0;
+
+    // Streak
+    let streak = 0;
+    for (let i = today; i >= 0; i--) {
+      const dayOfWeek = new Date(new Date().getFullYear(), new Date().getMonth(), i+1).getDay();
+      if (dayOfWeek === 0) continue; // skip sunday
+      if (Number(ciArr[i]||0) > 0) streak++;
+      else break;
+    }
+
+    document.getElementById('totalTp').textContent = totalTp;
+    document.getElementById('commonCheckin').textContent = totalCheckin;
+    document.getElementById('commonTp').textContent = commonTp;
+    document.getElementById('todayTp').textContent = todayTp;
+    document.getElementById('todayCheckin').textContent = todayCheckin;
+    document.getElementById('avgDailyTp').textContent = avgDaily;
+    document.getElementById('bestDayTp').textContent = bestDayTp;
+    document.getElementById('currentStreak').textContent = streak;
+
+    // Badge colors
+    setBadge('todayTpBadge', todayTp>=10?'green':todayTp>=5?'yellow':'red',
+      todayTp>=10?'🔥 High':todayTp>=5?'⚡ Medium':'📉 Low');
+    setBadge('todayCheckinBadge', todayCheckin>0?'green':'red',
+      todayCheckin>0?'✅ Checked In':'❌ No Checkin');
+
+    // Rank
+    const sorted = [...agents].sort((x,y) => Number(y.summaryCommonTp||0)-Number(x.summaryCommonTp||0));
+    const rank = sorted.findIndex(x=>x.mobile===a.mobile)+1;
+    document.getElementById('agentRank').textContent = '#' + rank;
+
+    // Risk badge
+    const isRisk = Number(a.summaryCheckin||0)===0;
+    const riskBadge = document.getElementById('agentRiskBadge');
+    if (isRisk) {
+      riskBadge.style.display='inline';
+      riskBadge.innerHTML = `<span style="background:rgba(239,68,68,0.2);color:var(--pp-red);padding:5px 14px;border-radius:50px;font-size:13px;font-weight:700;">⚠️ At Risk</span>`;
+    }
+
+    // Insights
+    renderInsights(totalTp, commonTp, totalCheckin, streak, rank, agents.length, todayTp, bestDayTp);
+    // Health Bars
+    renderHealthBars(totalTp, commonTp, totalCheckin, today+1);
+    // Streak row
+    renderStreakRow(tpArr, ciArr);
+    // Badges
+    renderBadges(totalTp, commonTp, streak, bestDayTp, rank, ojtOk);
+    // Calendar
+    renderCalendar(tpArr, ciArr);
+    // Charts
+    renderTpChart(tpArr);
+    renderDonutChart(totalTp, commonTp);
+    renderWeeklyChart(tpArr);
+
+  } catch(e) { console.error(e); alert('Error loading agent data'); }
+}
+
+function setBadge(id, cls, txt) {
+  const el = document.getElementById(id);
+  el.className = 'kpi-badge ' + cls;
+  el.textContent = txt;
+}
+
+// INSIGHTS
+function renderInsights(totalTp, commonTp, checkin, streak, rank, total, todayTp, best) {
+  const pct = total > 0 ? Math.round((rank/total)*100) : 100;
+  const insights = [];
+  insights.push({ icon:'📊', text: `You are ranked <strong>#${rank}</strong> out of <strong>${total}</strong> agents — top <strong>${pct}%</strong> of the team!` });
+  if (streak >= 5) insights.push({ icon:'🔥', text: `Amazing streak of <strong>${streak} active days</strong> in a row! Keep it going!` });
+  else if (streak >= 2) insights.push({ icon:'⚡', text: `You have a <strong>${streak}-day active streak</strong>. Push for 5+ days to earn the Hotstreak badge!` });
+  else insights.push({ icon:'⚠️', text: `No active streak detected. Log a checkin today to start building momentum!` });
+  if (todayTp >= 10) insights.push({ icon:'🌟', text: `Excellent today! <strong>${todayTp} TP</strong> already logged — you're on pace for a great day.` });
+  else if (todayTp === 0) insights.push({ icon:'📌', text: `No TP logged today yet. A target of <strong>10+ TP</strong> will put you in the high-performer zone.` });
+  if (best > 0) insights.push({ icon:'🏆', text: `Your personal best is <strong>${best} TP in a single day</strong>. Try to beat it!` });
+  document.getElementById('insightsContainer').innerHTML = insights
+    .map(i => `<div class="insight-box"><div class="insight-icon">${i.icon}</div><div class="insight-text">${i.text}</div></div>`)
+    .join('');
+}
+
+// HEALTH BARS
+function renderHealthBars(totalTp, commonTp, checkin, daysElapsed) {
+  const maxTp = daysElapsed * 10;
+  const maxCI = daysElapsed;
+  const tpPct = maxTp > 0 ? Math.min(100, Math.round((totalTp/maxTp)*100)) : 0;
+  const ciPct = maxCI > 0 ? Math.min(100, Math.round((checkin/maxCI)*100)) : 0;
+  const ctpPct = maxTp > 0 ? Math.min(100, Math.round((commonTp/maxTp)*100)) : 0;
+  document.getElementById('healthBars').innerHTML = `
+    <div class="progress-item">
+      <div class="progress-header"><span class="progress-label">🎯 TP Completion Rate</span><span class="progress-val">${tpPct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill purple" style="width:${tpPct}%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-header"><span class="progress-label">📍 Checkin Rate</span><span class="progress-val">${ciPct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill cyan" style="width:${ciPct}%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-header"><span class="progress-label">🔥 Common TP Rate</span><span class="progress-val">${ctpPct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill green" style="width:${ctpPct}%"></div></div>
+    </div>
+  `;
+}
+
+// STREAK ROW
+function renderStreakRow(tpArr, ciArr) {
+  const today = new Date().getDate();
+  let html = '';
+  for (let i = 0; i < today; i++) {
+    const date = new Date(new Date().getFullYear(), new Date().getMonth(), i+1);
+    const isSun = date.getDay()===0;
+    const hasCi = Number(ciArr[i]||0)>0;
+    if (isSun) {
+      html += `<div class="streak-dot off" title="Sunday">🌞</div>`;
+    } else if (hasCi) {
+      html += `<div class="streak-dot fire" title="Day ${i+1}: Active">${i+1}</div>`;
+    } else {
+      html += `<div class="streak-dot miss" title="Day ${i+1}: Missed">${i+1}</div>`;
+    }
+  }
+  document.getElementById('streakRow').innerHTML = html;
+}
+
+// BADGES
+function renderBadges(totalTp, commonTp, streak, best, rank, ojtOk) {
+  const badges = [
+    { icon:'🎓', name:'OJT Done', earned: ojtOk },
+    { icon:'🔟', name:'10+ TP Day', earned: best >= 10 },
+    { icon:'💯', name:'100 TP Month', earned: totalTp >= 100 },
+    { icon:'🔥', name:'5-Day Streak', earned: streak >= 5 },
+    { icon:'👑', name:'Top 10 Rank', earned: rank <= 10 },
+    { icon:'⭐', name:'Top 50 Rank', earned: rank <= 50 },
+    { icon:'🚀', name:'50+ Common TP', earned: commonTp >= 50 },
+    { icon:'💎', name:'200 TP Month', earned: totalTp >= 200 },
+  ];
+  document.getElementById('badgesRow').innerHTML = badges.map(b =>
+    `<div class="badge-item ${b.earned?'earned':''}">
+      <div class="badge-icon" style="filter:${b.earned?'none':'grayscale(1) opacity(0.3)'}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`
+  ).join('');
+}
+
+// CALENDAR
+function renderCalendar(tpArr, ciArr) {
+  const container = document.getElementById('calendarContainer');
+  container.innerHTML = '';
+  const now = new Date();
+  const today = now.getDate();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent = months[month] + ' ' + year;
+  const firstDay = new Date(year, month, 1).getDay();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  for (let b=0; b<firstDay; b++) container.innerHTML += '<div></div>';
+  for (let i = 1; i <= today; i++) {
+    const d = new Date(year, month, i);
+    const dayName = days[d.getDay()];
+    const tp = Number(tpArr[i-1]||0);
+    const ci = Number(ciArr[i-1]||0);
+    let cls='red', status='Low TP';
+    if (dayName==='Sun') { cls='sunday'; status='Sunday'; }
+    else if (tp>=10) { cls='green'; status='High TP'; }
+    else if (tp>=5) { cls='orange'; status='Medium TP'; }
+    const isToday = i===today;
+    container.innerHTML += `
+      <div class="day-cell ${cls}${isToday?' today':''}">
+        ${isToday?'<div class="today-pill">TODAY</div>':''}
+        <div class="day-num-row"><span class="day-name">${dayName}</span><span class="day-num">${i}</span></div>
+        <div class="day-tp"><div class="day-tp-label">🎯 TP</div><div class="day-tp-val">${tp}</div></div>
+        <div class="day-ci"><div class="day-ci-label">📍 Checkin</div><div class="day-ci-val">${ci}</div></div>
+        <div class="day-status">${status}</div>
+      </div>`;
+  }
+}
+
+// CHARTS
+function renderTpChart(tpArr) {
+  if (tpChartInst) { tpChartInst.destroy(); tpChartInst=null; }
+  const today = new Date().getDate();
+  const start = Math.max(1, today-13);
+  const labels=[], values=[];
+  for(let i=start;i<=today;i++) { labels.push(i); values.push(Number(tpArr[i-1]||0)); }
+  const ctx = document.getElementById('tpChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,300);
+  grad.addColorStop(0,'rgba(168,85,247,0.4)');
+  grad.addColorStop(1,'rgba(168,85,247,0)');
+  tpChartInst = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ data:values, borderColor:'#a855f7', backgroundColor:grad, borderWidth:3, pointBackgroundColor:'#a855f7', pointRadius:5, pointHoverRadius:8, fill:true, tension:0.4 }] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{family:'Outfit'}}}, y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{family:'Outfit'}}} } }
+  });
+}
+
+function renderDonutChart(totalTp, commonTp) {
+  if (donutInst) { donutInst.destroy(); donutInst=null; }
+  const other = Math.max(0, totalTp - commonTp);
+  const ctx = document.getElementById('tpDonut').getContext('2d');
+  donutInst = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels:['Common TP','Other TP'], datasets:[{ data:[commonTp, other], backgroundColor:['#a855f7','rgba(255,255,255,0.1)'], borderColor:['#7c3aed','rgba(255,255,255,0.05)'], borderWidth:2 }] },
+    options:{ plugins:{ legend:{ labels:{ color:'rgba(255,255,255,0.7)', font:{family:'Outfit'} } } }, cutout:'65%' }
+  });
+}
+
+function renderWeeklyChart(tpArr) {
+  if (weeklyInst) { weeklyInst.destroy(); weeklyInst=null; }
+  const today = new Date().getDate();
+  const weeks=['W1','W2','W3','W4'];
+  const weekTp=[0,0,0,0];
+  for(let i=0;i<today;i++) {
+    const w = Math.floor(i/7);
+    if(w<4) weekTp[w]+=Number(tpArr[i]||0);
+  }
+  const ctx = document.getElementById('weeklyChart').getContext('2d');
+  weeklyInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels:weeks, datasets:[{ data:weekTp, backgroundColor:['rgba(168,85,247,0.6)','rgba(6,182,212,0.6)','rgba(34,197,94,0.6)','rgba(245,158,11,0.6)'], borderRadius:10, borderWidth:0 }] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{family:'Outfit'}}}, y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{family:'Outfit'}}} } }
+  });
+}
+
+// LEADERBOARD
+function renderLeaderboard() {
+  const top = [...agents].sort((a,b)=>Number(b.summaryCommonTp||0)-Number(a.summaryCommonTp||0)).slice(0,5);
+  const rankClasses = ['gold','silver','bronze','other','other'];
+  const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+  document.getElementById('leaderboard').innerHTML = top.map((a,i) => `
+    <div class="lb-item">
+      <div class="lb-rank ${rankClasses[i]}">${medals[i]}</div>
+      <div class="lb-info">
+        <div class="lb-name">${a.name||'—'}</div>
+        <div class="lb-sub">${a.tsm||''}</div>
+      </div>
+      <div class="lb-stats">
+        <div class="lb-tp">🎯 ${a.summaryCommonTp||0}</div>
+        <div class="lb-ci">📍 ${a.summaryCheckin||0} days</div>
+      </div>
+    </div>`).join('');
+}
+
+// ====== TEAM DASHBOARD ======
+let allTeamData = [];
+async function openTeamDashboard(input) {
+  try {
+    let url;
+    if(input.startsWith('4')) url = API+'?asmid='+input;
+    else if(input.startsWith('1')) url = API+'?shid='+input;
+    else url = API+'?tsmid='+input;
+    const r = await fetch(url);
+    allTeamData = await r.json();
+    if(!allTeamData.length) { alert('No Team Found'); return; }
+    document.getElementById('searchCard').style.display='none';
+    document.getElementById('summaryStrip').style.display='none';
+    document.getElementById('teamDashboard').classList.remove('hidden');
+    document.getElementById('agentDashboard').classList.add('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+    renderTeamData(allTeamData);
+  } catch(e) { console.error(e); alert('Error loading team data'); }
+}
+
+function renderTeamData(data) {
+  let done=0, pend=0, risk=0, active=0, totalTp=0;
+  data.forEach(a => {
+    String(a.ojt)==='1'?done++:pend++;
+    Number(a.summaryCheckin||0)===0?risk++:active++;
+    totalTp+=Number(a.summaryCommonTp||0);
+  });
+  document.getElementById('teamAgents').textContent=data.length;
+  document.getElementById('teamDone').textContent=done;
+  document.getElementById('teamPending').textContent=pend;
+  document.getElementById('teamRisk').textContent=risk;
+  document.getElementById('teamActive').textContent=active;
+  document.getElementById('teamTotalTp').textContent=totalTp;
+  renderTeamTable(data);
+  renderTeamCharts(done, pend, data);
+}
+
+function renderTeamTable(data) {
+  document.getElementById('teamTable').innerHTML = data.map((a,i) => {
+    const ci = Number(a.summaryCheckin||0);
+    const ctp = Number(a.summaryCommonTp||0);
+    const isRisk = ci===0;
+    const perfClass = ctp>=50?'perf-high':ctp>=20?'perf-med':'perf-low';
+    return `<tr>
+      <td style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;">${i+1}</td>
+      <td style="font-weight:600;">${a.name||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--text-muted)">${a.mobile||'—'}</td>
+      <td>${String(a.ojt)==='1'?'<span class="ojt-done">✅ Done</span>':'<span class="ojt-pend">🔴 Pending</span>'}</td>
+      <td style="font-weight:700;color:#60a5fa;">${ci}</td>
+      <td class="${perfClass}">${ctp}</td>
+      <td>${isRisk?'<span class="risk-yes">⚠️ Risk</span>':'<span class="risk-no">✅ Safe</span>'}</td>
+      <td class="${perfClass}">${ctp>=50?'🔥 High':ctp>=20?'⚡ Medium':'📉 Low'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('teamPagination').textContent = `Showing ${data.length} agents`;
+}
+
+function filterTeamTable() {
+  const name = document.getElementById('filterName').value.toLowerCase();
+  const ojt = document.getElementById('filterOjt').value;
+  const risk = document.getElementById('filterRisk').value;
+  let filtered = allTeamData.filter(a => {
+    const nameMatch = !name || (a.name||'').toLowerCase().includes(name);
+    const ojtMatch = !ojt || (ojt==='done'?String(a.ojt)==='1':String(a.ojt)!=='1');
+    const riskMatch = !risk || (risk==='risk'?Number(a.summaryCheckin||0)===0:Number(a.summaryCheckin||0)>0);
+    return nameMatch && ojtMatch && riskMatch;
+  });
+  renderTeamTable(filtered);
+}
+
+function sortTeam(field) {
+  sortDir[field] = !sortDir[field];
+  const sorted = [...allTeamData].sort((a,b) => {
+    const av = field==='checkin'?Number(a.summaryCheckin||0):Number(a.summaryCommonTp||0);
+    const bv = field==='checkin'?Number(b.summaryCheckin||0):Number(b.summaryCommonTp||0);
+    return sortDir[field]?bv-av:av-bv;
+  });
+  renderTeamTable(sorted);
+}
+
+function exportTeamCSV() {
+  const rows = [['Name','Mobile','OJT','Checkins','Common TP','Risk']];
+  allTeamData.forEach(a => rows.push([
+    a.name||'', a.mobile||'',
+    String(a.ojt)==='1'?'Done':'Pending',
+    a.summaryCheckin||0, a.summaryCommonTp||0,
+    Number(a.summaryCheckin||0)===0?'At Risk':'Safe'
+  ]));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement('a');
+  el.href=url; el.download='team-agents.csv'; el.click();
+}
+
+function renderTeamCharts(done, pend, data) {
+  if(teamDonutInst){teamDonutInst.destroy();teamDonutInst=null;}
+  if(teamBarInst){teamBarInst.destroy();teamBarInst=null;}
+  const ctx1 = document.getElementById('teamDonut').getContext('2d');
+  teamDonutInst = new Chart(ctx1,{
+    type:'doughnut',
+    data:{ labels:['OJT Done','OJT Pending'], datasets:[{data:[done,pend],backgroundColor:['rgba(34,197,94,0.7)','rgba(239,68,68,0.5)'],borderColor:['#16a34a','#dc2626'],borderWidth:2}] },
+    options:{ plugins:{ legend:{ labels:{ color:'rgba(255,255,255,0.7)', font:{family:'Outfit'} } } }, cutout:'65%' }
+  });
+  const sorted = [...data].sort((a,b)=>Number(b.summaryCommonTp||0)-Number(a.summaryCommonTp||0)).slice(0,10);
+  const ctx2 = document.getElementById('teamBar').getContext('2d');
+  teamBarInst = new Chart(ctx2,{
+    type:'bar',
+    data:{ labels:sorted.map(a=>(a.name||'').split(' ')[0]), datasets:[{data:sorted.map(a=>Number(a.summaryCommonTp||0)),backgroundColor:'rgba(168,85,247,0.6)',borderRadius:8,borderWidth:0}] },
+    options:{ plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{size:11,family:'Outfit'}}}, y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(255,255,255,0.5)',font:{family:'Outfit'}}} } }
+  });
+}
+</script>
+</body>
+</html>
