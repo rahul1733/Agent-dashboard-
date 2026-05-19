@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhonePe Rajasthan New Agent Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --pp:#5f259f;--pp2:#7c3aed;--pp3:#9333ea;
+  --green:#16a34a;--red:#dc2626;--orange:#f97316;--yellow:#d97706;--blue:#2563eb;--gold:#f59e0b;
+  --bg:#f5f0fc;--card:#ffffff;--border:#e8e0f5;
+  --txt:#1a0533;--muted:#7c6a96;--light:#b0a0cc;
+  --sh:0 2px 14px rgba(95,37,159,0.09);
+  --shm:0 4px 22px rgba(95,37,159,0.13);
+  --shl:0 8px 36px rgba(95,37,159,0.17);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+.wrap{max-width:1800px;margin:auto;padding:18px;}
+
+#pageLoader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+#pageLoader.hidden{display:none!important;}
+.ld-logo{width:200px;height:auto;animation:plp 1.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;}
+.ld-logo img{width:100%;height:auto;object-fit:contain;display:block;}
+@keyframes plp{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.ld-bar{width:240px;height:5px;background:#ede8f8;border-radius:5px;overflow:hidden;}
+.ld-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--pp),var(--pp2));border-radius:5px;animation:ldfill 2s ease forwards;}
+@keyframes ldfill{to{width:100%;}}
+.ld-txt{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:1px;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#5f259f 0%,#7c3aed 55%,#9333ea 100%);padding:20px 28px;border-radius:20px;box-shadow:var(--shl);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header::before{content:'';position:absolute;width:340px;height:340px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);right:-70px;top:-130px;pointer-events:none;}
+.header-left{display:flex;align-items:center;gap:14px;position:relative;z-index:2;}
+.pp-logo{width:130px;height:48px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:6px 10px;}
+.pp-logo img{width:100%;height:100%;object-fit:contain;}
+.hd-title h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.2px;}
+.hd-title p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;}
+.header-right{display:flex;gap:9px;align-items:center;position:relative;z-index:2;flex-wrap:wrap;}
+.update-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);padding:7px 13px;border-radius:50px;font-size:12px;font-weight:600;color:#fff;}
+.update-dot{width:8px;height:8px;background:#fde68a;border-radius:50%;flex-shrink:0;}
+.btn-back{padding:7px 16px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);border-radius:50px;color:#fff;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;}
+.btn-back:hover{background:rgba(255,255,255,0.26);}
+
+/* BANNER */
+.sh-banner{background:linear-gradient(135deg,rgba(95,37,159,0.07),rgba(124,58,237,0.05));border:1.5px solid rgba(95,37,159,0.16);border-radius:14px;padding:12px 18px;margin-top:12px;display:flex;align-items:center;gap:10px;}
+.sh-banner-icon{font-size:20px;}
+.sh-banner-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.7px;}
+.sh-banner-name{font-size:17px;font-weight:800;color:var(--pp);margin-top:2px;}
+
+/* SUMMARY STRIP */
+.summary-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-top:12px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:11px;box-shadow:var(--sh);transition:all 0.22s;}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--shm);}
+.sc-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sc-icon.p{background:rgba(95,37,159,0.09);}
+.sc-icon.g{background:rgba(22,163,74,0.09);}
+.sc-icon.r{background:rgba(220,38,38,0.09);}
+.sc-icon.o{background:rgba(249,115,22,0.09);}
+.sc-icon.b{background:rgba(37,99,235,0.09);}
+.sc-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;}
+.sc-val{font-size:24px;font-weight:800;margin-top:2px;line-height:1;}
+.sc-val.p{color:var(--pp);}
+.sc-val.g{color:var(--green);}
+.sc-val.r{color:var(--red);}
+.sc-val.o{color:var(--orange);}
+.sc-val.b{color:var(--blue);}
+
+/* SEARCH */
+.search-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-top:12px;box-shadow:var(--sh);}
+.search-title{font-size:17px;font-weight:800;margin-bottom:12px;color:var(--pp);}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;}
+.si-wrap{flex:1;position:relative;min-width:200px;}
+.si-wrap input{width:100%;padding:14px 15px 14px 46px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--txt);font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:all 0.22s;}
+.si-wrap input::placeholder{color:var(--light);}
+.si-wrap input:focus{border-color:var(--pp2);background:#fff;box-shadow:0 0 0 3px rgba(95,37,159,0.09);}
+.si-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.btn-search{padding:14px 24px;background:var(--pp);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all 0.22s;box-shadow:0 4px 14px rgba(95,37,159,0.26);white-space:nowrap;}
+.btn-search:hover{background:#3d1566;transform:translateY(-1px);}
+.hints{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap;}
+.hint{padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:50px;font-size:11px;color:var(--muted);}
+.hint strong{color:var(--pp);}
+
+/* SECTION */
+.sec-title{font-size:16px;font-weight:800;color:var(--pp);display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.sec-title::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--pp),var(--pp2));border-radius:4px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--sh);}
+
+/* PROFILE */
+.profile-card{background:linear-gradient(135deg,#5f259f 0%,#7c3aed 55%,#9333ea 100%);border-radius:20px;padding:26px;margin-top:12px;position:relative;overflow:hidden;box-shadow:var(--shl);}
+.profile-card::before{content:'';position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 70%);right:-50px;top:-100px;pointer-events:none;}
+.prof-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;position:relative;z-index:2;}
+.prof-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.av{width:58px;height:58px;background:rgba(255,255,255,0.17);border:2px solid rgba(255,255,255,0.26);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;}
+.ag-name{font-size:24px;font-weight:900;color:#fff;}
+.ag-sub{font-size:12px;color:rgba(255,255,255,0.68);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.rk-box{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:14px 22px;text-align:center;}
+.rk-lbl{font-size:10px;color:rgba(255,255,255,0.68);text-transform:uppercase;letter-spacing:1px;}
+.rk-num{font-size:38px;font-weight:900;color:#fde68a;margin-top:2px;line-height:1;}
+.rk-sub{font-size:10px;color:rgba(255,255,255,0.52);margin-top:3px;}
+.prof-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-top:18px;position:relative;z-index:2;}
+.pmb{background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.13);border-radius:12px;padding:11px 14px;}
+.pmb-lbl{font-size:10px;color:rgba(255,255,255,0.6);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
+.pmb-val{font-size:14px;font-weight:700;color:#fff;margin-top:3px;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px;}
+.kc{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:var(--sh);transition:all 0.22s;position:relative;overflow:hidden;}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--shm);border-color:rgba(95,37,159,0.25);}
+.kc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pp),var(--pp2));opacity:0;transition:opacity 0.22s;}
+.kc:hover::after{opacity:1;}
+.kc-lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.kc-val{font-size:30px;font-weight:900;color:var(--pp);margin-top:5px;line-height:1;}
+.kc-badge{display:inline-block;margin-top:7px;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700;}
+.kc-badge.g{background:rgba(22,163,74,0.09);color:var(--green);}
+.kc-badge.b{background:rgba(37,99,235,0.09);color:var(--blue);}
+.kc-badge.y{background:rgba(217,119,6,0.09);color:var(--yellow);}
+.kc-badge.p{background:rgba(95,37,159,0.09);color:var(--pp);}
+
+/* LAYOUTS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+.three-col{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:12px;}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+/* CALENDAR */
+.cal-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-inner{min-width:min(700px,98vw);}
+.cal-headers{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:3px;}
+.cal-hdr{text-align:center;font-size:9px;font-weight:800;letter-spacing:0.5px;color:#fff;padding:5px 2px;text-transform:uppercase;background:var(--pp);border-radius:7px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;}
+.dc{background:#faf8ff;border:1.5px solid #ede8f8;border-radius:8px;padding:5px;min-height:80px;position:relative;}
+.dc.green{border-color:rgba(22,163,74,0.3);background:#f0fdf4;}
+.dc.half{border-color:rgba(217,119,6,0.3);background:#fffbeb;}
+.dc.absent{border-color:rgba(220,38,38,0.26);background:#fff5f5;}
+.dc.sunday{border-color:rgba(249,115,22,0.26);background:#fff7ed;}
+.dc.today{box-shadow:0 0 0 2px var(--pp);}
+.dc.blank{background:transparent;border-color:transparent;min-height:0;padding:0;}
+.today-p{position:absolute;top:4px;right:4px;background:var(--pp);color:#fff;font-size:8px;font-weight:800;padding:2px 5px;border-radius:5px;letter-spacing:1px;}
+.dc-top{display:flex;justify-content:space-between;align-items:center;}
+.dc-day{font-size:9px;font-weight:800;letter-spacing:0.8px;}
+.dc-num{font-size:15px;font-weight:800;}
+.dc.green .dc-day,.dc.green .dc-num{color:var(--green);}
+.dc.half .dc-day,.dc.half .dc-num{color:var(--yellow);}
+.dc.absent .dc-day,.dc.absent .dc-num{color:var(--red);}
+.dc.sunday .dc-day,.dc.sunday .dc-num{color:var(--orange);}
+.dc-tp,.dc-ci{background:#fff;border-radius:6px;padding:5px 6px;margin-top:4px;border:1px solid #f0e8ff;}
+.dc-tp-lbl,.dc-ci-lbl{font-size:8px;color:var(--light);}
+.dc-tp-val{font-size:16px;font-weight:800;margin-top:1px;}
+.dc-ci-val{font-size:12px;font-weight:700;margin-top:1px;color:var(--blue);}
+.dc.green .dc-tp-val{color:var(--green);}
+.dc.half .dc-tp-val{color:var(--yellow);}
+.dc.absent .dc-tp-val{color:var(--red);}
+.dc.sunday .dc-tp-val{color:var(--orange);}
+.dc-status{margin-top:4px;font-size:8px;font-weight:700;padding:3px 5px;border-radius:5px;text-align:center;}
+.dc.green .dc-status{background:rgba(22,163,74,0.10);color:var(--green);}
+.dc.half .dc-status{background:rgba(217,119,6,0.10);color:var(--yellow);}
+.dc.absent .dc-status{background:rgba(220,38,38,0.08);color:var(--red);}
+.dc.sunday .dc-status{background:rgba(249,115,22,0.08);color:var(--orange);}
+
+/* LEADERBOARD */
+.lb-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0e8ff;transition:all 0.2s;}
+.lb-item:last-child{border-bottom:none;}
+.lb-item:hover{background:#faf8ff;border-radius:10px;padding-left:6px;margin:0 -6px;}
+.lb-rk{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+.lb-rk.gold{background:rgba(245,158,11,0.13);color:#d97706;}
+.lb-rk.silver{background:rgba(148,163,184,0.13);color:#64748b;}
+.lb-rk.bronze{background:rgba(205,127,50,0.13);color:#b45309;}
+.lb-rk.other{background:#f4f0fb;color:var(--muted);}
+.lb-name{font-size:13px;font-weight:700;color:var(--txt);}
+.lb-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.lb-stats{text-align:right;margin-left:auto;}
+.lb-tp{font-size:18px;font-weight:800;color:var(--pp);}
+.lb-ci{font-size:11px;color:var(--blue);margin-top:2px;}
+
+/* PROGRESS / HEALTH */
+.pi{margin-bottom:16px;}
+.pi:last-child{margin-bottom:0;}
+.pi-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.pi-lbl{font-size:12px;font-weight:700;color:var(--txt);}
+.pi-val{font-size:12px;font-weight:800;color:var(--pp);}
+.pi-bar{height:9px;background:#ede8f8;border-radius:50px;overflow:hidden;}
+.pi-fill{height:100%;border-radius:50px;transition:width 1s ease;}
+.pi-fill.pp{background:linear-gradient(90deg,var(--pp),var(--pp2));}
+.pi-fill.gn{background:linear-gradient(90deg,#16a34a,#22c55e);}
+.pi-note{margin-top:3px;font-size:11px;color:var(--muted);}
+.cvt-box{background:rgba(95,37,159,0.05);border:1px solid rgba(95,37,159,0.12);border-radius:12px;padding:14px 16px;margin-top:14px;}
+.cvt-title{font-size:12px;font-weight:700;color:var(--pp);margin-bottom:10px;}
+.cvt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.cvt-lbl{font-size:12px;font-weight:600;color:var(--txt);}
+.cvt-num{font-size:18px;font-weight:800;color:var(--pp);}
+.cvt-pct{font-size:13px;font-weight:700;padding:3px 10px;border-radius:50px;}
+.cvt-pct.good{background:rgba(22,163,74,0.10);color:var(--green);}
+.cvt-pct.mid{background:rgba(217,119,6,0.10);color:var(--yellow);}
+.cvt-pct.bad{background:rgba(220,38,38,0.09);color:var(--red);}
+
+/* BADGES */
+.badges-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;}
+.badge-item{background:#faf8ff;border:1.5px solid #ede8f8;border-radius:12px;padding:10px 13px;text-align:center;min-width:76px;transition:all 0.22s;}
+.badge-item:hover{transform:translateY(-2px);box-shadow:var(--sh);}
+.badge-icon{font-size:22px;}
+.badge-name{font-size:9px;color:var(--muted);margin-top:3px;font-weight:700;}
+.badge-item.earned{border-color:rgba(245,158,11,0.35);background:#fffbeb;}
+.badge-item.earned .badge-name{color:#d97706;}
+
+/* TEAM TABLE */
+.tt{width:100%;border-collapse:collapse;}
+.tt th{background:#f4f0fb;color:var(--pp);padding:10px 12px;font-size:10px;font-weight:800;text-align:left;text-transform:uppercase;letter-spacing:0.6px;}
+.tt th:first-child{border-radius:8px 0 0 8px;}
+.tt th:last-child{border-radius:0 8px 8px 0;}
+.tt td{padding:11px 12px;border-bottom:1px solid #f4f0fb;font-size:12px;color:var(--txt);}
+.tt tr:hover td{background:#faf8ff;}
+.ojt-y{background:rgba(22,163,74,0.08);color:var(--green);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;white-space:nowrap;}
+.ojt-n{background:rgba(220,38,38,0.08);color:var(--red);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;white-space:nowrap;}
+.risk-y{background:rgba(220,38,38,0.08);color:var(--red);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;}
+.risk-n{background:rgba(22,163,74,0.08);color:var(--green);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;}
+.ph{color:var(--green);font-weight:700;}
+.pm{color:var(--yellow);font-weight:700;}
+.pl{color:var(--red);font-weight:700;}
+.sb{cursor:pointer;user-select:none;}
+.sb:hover{color:var(--pp);}
+.frow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.fi{flex:1;min-width:130px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--txt);font-size:12px;font-family:'Outfit',sans-serif;outline:none;}
+.fi:focus{border-color:var(--pp2);}
+.fs{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--txt);font-size:12px;font-family:'Outfit',sans-serif;outline:none;}
+.fs option{background:#fff;}
+.export-btn{padding:8px 14px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:9px;color:var(--green);font-size:11px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;}
+.export-btn:hover{background:rgba(22,163,74,0.16);}
+.tbl-scroll{overflow-x:auto;border-radius:12px;}
+
+.footer{text-align:center;padding:24px 0 12px;color:var(--muted);font-size:12px;}
+.footer strong{color:var(--pp);}
+
+@keyframes fu{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.fu{animation:fu 0.4s ease forwards;}
+.fu2{animation:fu 0.4s 0.07s ease forwards;opacity:0;}
+.fu3{animation:fu 0.4s 0.14s ease forwards;opacity:0;}
+.fu4{animation:fu 0.4s 0.21s ease forwards;opacity:0;}
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f4f0fb;}
+::-webkit-scrollbar-thumb{background:rgba(95,37,159,0.25);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<div id="pageLoader">
+  <div class="ld-logo">
+    <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe">
+  </div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-txt" id="loaderText">Loading Rajasthan Dashboard...</div>
+</div>
+
+<div class="wrap">
+
+  <div class="header fu">
+    <div class="header-left">
+      <div class="pp-logo">
+        <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe">
+      </div>
+      <div class="hd-title">
+        <h1>Rajasthan New Agent Dashboard</h1>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="update-badge">
+        <div class="update-dot"></div>
+        <span>Sheet Updated: <strong id="lastUpdated">Loading...</strong></span>
+      </div>
+      <button class="btn-back hidden" id="backBtn" onclick="goBack()">&#8592; Back</button>
+    </div>
+  </div>
+
+  <div id="teamBanner" class="sh-banner hidden">
+    <div class="sh-banner-icon" id="bannerIcon">&#127970;</div>
+    <div>
+      <div class="sh-banner-label" id="bannerLabel">State Head</div>
+      <div class="sh-banner-name" id="bannerName">&#8212;</div>
+    </div>
+  </div>
+
+  <div class="summary-strip fu2" id="summaryStrip">
+    <div class="sc"><div class="sc-icon p">&#128101;</div><div><div class="sc-lbl">Total Agents</div><div class="sc-val p" id="totalAgents">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon g">&#9989;</div><div><div class="sc-lbl">OJT Done</div><div class="sc-val g" id="ojtDone">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon r">&#128308;</div><div><div class="sc-lbl">OJT Pending</div><div class="sc-val r" id="ojtPending">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon o">&#9888;&#65039;</div><div><div class="sc-lbl">At Risk</div><div class="sc-val o" id="riskAgents">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon b">&#128293;</div><div><div class="sc-lbl">Active Agents</div><div class="sc-val b" id="activeAgents">&#8212;</div></div></div>
+  </div>
+
+  <div class="search-card fu3" id="searchCard">
+    <div class="search-title">&#128269; Login to Dashboard</div>
+    <div class="search-row">
+      <div class="si-wrap">
+        <span class="si-icon">&#128272;</span>
+        <input type="text" id="searchInput" placeholder="Enter BT ID / TSM ID / ASM ID / SH ID" onkeydown="if(event.key==='Enter')searchDashboard()">
+      </div>
+      <button class="btn-search" onclick="searchDashboard()">Open Dashboard &#8594;</button>
+    </div>
+    <div class="hints">
+      <div class="hint"><strong>BT ID</strong> &#8594; Agent</div>
+      <div class="hint"><strong>TSM ID</strong> &#8594; Team View</div>
+      <div class="hint"><strong>4xxxxx</strong> &#8594; ASM View</div>
+      <div class="hint"><strong>1xxxxx</strong> &#8594; State Head View</div>
+    </div>
+  </div>
+
+  <div id="agentDashboard" class="hidden">
+    <div class="profile-card fu">
+      <div class="prof-top">
+        <div class="prof-left">
+          <div class="av" id="agentAvatar">&#128100;</div>
+          <div>
+            <div class="ag-name" id="agentName">&#8212;</div>
+            <div class="ag-sub"><span id="agentOjtBadge"></span><span id="agentRiskBadge"></span></div>
+          </div>
+        </div>
+        <div class="rk-box">
+          <div class="rk-lbl">&#127942; Rank</div>
+          <div class="rk-num" id="agentRank">#&#8212;</div>
+        </div>
+      </div>
+      <div class="prof-meta">
+        <div class="pmb"><div class="pmb-lbl">&#128300; BT ID</div><div class="pmb-val" id="agentMobile">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#128084; TSM</div><div class="pmb-val" id="tsmName">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#128104;&#8205;&#128188; ASM</div><div class="pmb-val" id="asmName">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#127970; State Head</div><div class="pmb-val" id="shName">&#8212;</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid fu2">
+      <div class="kc"><div class="kc-lbl">&#127919; Total TP</div><div class="kc-val" id="totalTp">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128205; Active Days</div><div class="kc-val" id="commonCheckin">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128293; Common TP</div><div class="kc-val" id="commonTp">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128202; Avg TP/Day</div><div class="kc-val" id="avgDailyTp">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#127942; Best Day TP</div><div class="kc-val" id="bestDayTp">0</div></div>
+    </div>
+
+    <div class="card fu3" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#128197; Monthly Performance Calendar</div>
+        <div id="calMonthLabel" style="font-size:12px;font-weight:700;color:var(--muted);"></div>
+      </div>
+      <div class="cal-wrap">
+        <div class="cal-inner">
+          <div class="cal-headers">
+            <div class="cal-hdr">SUN</div><div class="cal-hdr">MON</div><div class="cal-hdr">TUE</div>
+            <div class="cal-hdr">WED</div><div class="cal-hdr">THU</div><div class="cal-hdr">FRI</div><div class="cal-hdr">SAT</div>
+          </div>
+          <div class="cal-grid" id="calendarContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card fu4" style="margin-top:12px;">
+      <div class="sec-title">&#128202; Performance Health</div>
+      <div id="healthBars"></div>
+    </div>
+
+    <div class="card fu" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#127885; Achievements</div>
+      </div>
+      <div class="badges-row" id="badgesRow"></div>
+    </div>
+
+    <div class="three-col fu2">
+      <div class="card">
+        <div class="sec-title">&#128200; TP Trend</div>
+        <canvas id="tpChart" height="120"></canvas>
+      </div>
+      <div class="card">
+        <div class="sec-title">&#127942; Top 5</div>
+        <div id="leaderboard"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="teamDashboard" class="hidden">
+    <div class="kpi-grid fu" style="margin-top:12px;">
+      <div class="kc"><div class="kc-lbl">&#128101; Agents</div><div class="kc-val" id="teamAgents">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#9989; OJT Done</div><div class="kc-val" style="color:var(--green)" id="teamDone">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128308; Pending</div><div class="kc-val" style="color:var(--red)" id="teamPending">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#9888; At Risk</div><div class="kc-val" style="color:var(--orange)" id="teamRisk">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128293; Active</div><div class="kc-val" style="color:var(--blue)" id="teamActive">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#127919; Total TP</div><div class="kc-val" id="teamTotalTp">0</div></div>
+    </div>
+    
+    <div class="card fu3" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#128203; Team Details</div>
+        <button class="export-btn" onclick="exportCSV()">&#11015; Export</button>
+      </div>
+      <div class="frow">
+        <input class="fi" id="filterName" placeholder="Search..." oninput="filterTeam()">
+      </div>
+      <div class="tbl-scroll">
+        <table class="tt">
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>BT ID</th>
+              <th id="col_tsm">TSM</th><th id="col_asm" class="hidden">ASM</th>
+              <th>OJT</th><th>Checkins</th><th>Common TP</th><th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="teamTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by <strong>Rahul Bhatt</strong> &bull; Regional Capability Manager &bull; PhonePe</div>
+</div>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbx6YLBLALuLIPDFlhWxGYsOuzsQk-q1NXJoVpUqtsUWg8Cj8jsU8A7-aXDZc0oV1KuKJg/exec";
+let agents=[],allTeam=[],viewType='',sortDir={};
+let tpCI=null;
+
+function normalizeAgent(a){
+  const tpObj=a.day_wise_tp||{};
+  const ciObj=a.day_wise_checkin||{};
+  const tpArr=[]; const ciArr=[];
+  for(let i=1;i<=31;i++){
+    tpArr.push(Number(tpObj['day_'+i] || 0));
+    ciArr.push(Number(ciObj['day_'+i] || 0));
+  }
+  return {
+    ...a,
+    name:a.first_name || '—',
+    employeeNumber:a.employee_number || '',
+    mobile:a.employee_number || '',
+    tsm:a.tsm_name && a.tsm_name !== '-' ? a.tsm_name : '—',
+    asm:a.asm_csm_name || '—',
+    sh:a.sh_name || '—',
+    ojt:String(a.ojt_status || 0),
+    summaryCheckin:Number(a.total_common_checkin || 0),
+    summaryCommonTp:Number(a.total_common_tp_7_days || 0),
+    totalTp:Number(a.tp || 0),
+    daywiseTp:tpArr,
+    daywiseCheckin:ciArr
+  };
+}
+
+const showL=(msg="Loading Rajasthan Dashboard...")=>{
+  document.getElementById('loaderText').textContent = msg;
+  document.getElementById('pageLoader').classList.remove('hidden');
+}
+const hideL=()=>document.getElementById('pageLoader').classList.add('hidden');
+const set=(id,v)=>{ if(document.getElementById(id)) document.getElementById(id).textContent=v; }
+
+// ===== UPDATED DATA FETCH WITH ERROR HANDLING =====
+async function loadData(){
+  showL("Fetching data from Google Sheet...");
+  try{
+    const r=await fetch(API);
+    if (!r.ok) {
+        throw new Error(`HTTP Error Status: ${r.status}. Please check backend availability.`);
+    }
+    
+    // Check if the response is actually JSON or HTML (which indicates a permissions issue)
+    const textData = await r.text();
+    let raw;
+    try {
+        raw = JSON.parse(textData);
+    } catch (parseErr) {
+        throw new Error("API returned invalid data (Not JSON). Please check if your Google Apps Script is deployed with access set to 'Anyone'.");
+    }
+
+    if(raw.error) {
+        throw new Error("Backend Error: " + raw.error);
+    }
+
+    agents=(Array.isArray(raw)?raw: (raw.data || [])).map(normalizeAgent);
+    
+    if(agents.length === 0){
+        alert("Warning: The API returned an empty list. Please verify your Google Sheet has data.");
+    }
+
+    if(raw.lastModified) document.getElementById('lastUpdated').textContent=raw.lastModified;
+    else computeLastUpdated();
+    
+    loadSummary();
+    renderLeaderboard();
+  }catch(e){
+    console.error("Fetch Data Error:", e);
+    alert("❌ Data Load Failed!\n\nReason: " + e.message + "\n\nPlease fix the backend API URL or permissions.");
+    document.getElementById('lastUpdated').textContent="Error";
+  }
+  hideL();
+}
+
+function computeLastUpdated(){
+  try{
+    if(!agents || !agents.length) return;
+    const now=new Date();
+    let lastDay=0;
+    agents.forEach(a=>{
+      const ci=a.daywiseCheckin||[];
+      for(let i=ci.length-1;i>=0;i--){
+        if(Number(ci[i]||0)>=1){
+          if(i+1>lastDay) lastDay=i+1;
+          break;
+        }
+      }
+    });
+    if(lastDay>0){
+      const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      document.getElementById('lastUpdated').textContent=lastDay+' '+months[now.getMonth()]+' '+now.getFullYear();
+    } else {
+      document.getElementById('lastUpdated').textContent='—';
+    }
+  }catch(e){ document.getElementById('lastUpdated').textContent='—'; }
+}
+
+loadData();
+
+function loadSummary(){
+  let done=0,pend=0,risk=0,active=0;
+  agents.forEach(a=>{String(a.ojt)==='1'?done++:pend++;Number(a.summaryCheckin||0)===0?risk++:active++;});
+  set('totalAgents',agents.length);set('ojtDone',done);set('ojtPending',pend);set('riskAgents',risk);set('activeAgents',active);
+}
+
+// ===== UPDATED SEARCH DASHBOARD WITH ERROR HANDLING =====
+async function searchDashboard(){
+  const v=document.getElementById('searchInput').value.trim().toUpperCase();
+  if(!v){ alert('Please Enter BT ID / ASM ID / SH ID / TSM'); return; }
+
+  showL(`Searching for ${v}...`);
+  try{
+    if(/^1[0-9]+$/.test(v) || /^4[0-9]+$/.test(v) || v.length>=2 && !/^BT[A-Z]{2}[0-9]+$/.test(v)){
+      await openTeam(v);
+    } else if(/^BT[A-Z]{2}[0-9]+$/.test(v)){
+      await openAgent(v);
+    } else {
+      alert('Invalid Login ID format.');
+    }
+  }catch(e){
+    console.error("Search Error:", e);
+    alert('❌ Search Failed: ' + e.message);
+  }
+  hideL();
+}
+
+function goBack(){
+  ['agentDashboard','teamDashboard'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='');
+  document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('teamBanner').classList.add('hidden');
+  document.getElementById('searchInput').value='';
+  viewType='';
+}
+
+async function openAgent(mobile){
+  const r=await fetch(API+'?employee_number='+mobile);
+  if(!r.ok) throw new Error(`HTTP Error Status: ${r.status}`);
+  
+  const textData = await r.text();
+  let dataRaw;
+  try {
+      dataRaw = JSON.parse(textData);
+  } catch(err) {
+      throw new Error("Invalid API response format.");
+  }
+
+  const data=Array.isArray(dataRaw)?dataRaw:(dataRaw.data||[]);
+  if(!data.length){alert('No Agent Found in Database');return;}
+  
+  const a=normalizeAgent(data[0]);
+  ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('agentDashboard').classList.remove('hidden');
+  document.getElementById('backBtn').classList.remove('hidden');
+
+  set('agentName',a.name||'—');
+  set('agentMobile',a.employeeNumber || a.mobile || '—');
+  set('tsmName',a.tsm||'—'); set('asmName',a.asm||'—'); set('shName',a.sh||'—');
+  
+  const tpA=a.daywiseTp||[],ciA=a.daywiseCheckin||[];
+  let tt=Number(a.totalTp || 0);
+  let tc=0; ciA.forEach(v=>{if(Number(v||0)>0)tc++;});
+  
+  set('totalTp',tt); set('commonCheckin',tc);
+  renderCal(tpA,ciA);
+}
+
+function renderCal(tpA,ciA){
+  const container=document.getElementById('calendarContainer');
+  container.innerHTML='';
+  const now=new Date();
+  const yr=now.getFullYear(), mo=now.getMonth(), today=now.getDate();
+  const mnames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent=mnames[mo]+' '+yr;
+  
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const firstDay=new Date(yr,mo,1).getDay();
+  
+  for(let b=0;b<firstDay;b++) container.innerHTML+=`<div class="dc blank"></div>`;
+  for(let i=1;i<=today;i++){
+    const dn=days[new Date(yr,mo,i).getDay()];
+    const tp=Number(tpA[i-1]||0), ci=Number(ciA[i-1]||0);
+    let cls=dn==='Sun'?'sunday':tp===0?'absent':tp<=4?'absent':tp<=9?'half':'green';
+    const isToday=i===today;
+    container.innerHTML+=`
+      <div class="dc ${cls}${isToday?' today':''}">
+        ${isToday?'<div class="today-p">TODAY</div>':''}
+        <div class="dc-top"><span class="dc-day">${dn}</span><span class="dc-num">${i}</span></div>
+        <div class="dc-tp"><div class="dc-tp-lbl">🎯 TP</div><div class="dc-tp-val">${tp}</div></div>
+      </div>`;
+  }
+}
+
+async function openTeam(input){
+  let url=input.startsWith('4')?API+'?asm_csm_emp_id='+input:input.startsWith('1')?API+'?sh_emp_id='+input:API+'?tsm_name='+input;
+  const r=await fetch(url);
+  if(!r.ok) throw new Error(`HTTP Error Status: ${r.status}`);
+  
+  const textData = await r.text();
+  let dataRaw;
+  try {
+      dataRaw = JSON.parse(textData);
+  } catch(err) {
+      throw new Error("Invalid API response format.");
+  }
+  
+  allTeam=dataRaw.map(normalizeAgent);
+  if(!allTeam.length){alert('No Team Data Found');return;}
+  
+  ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('teamDashboard').classList.remove('hidden');
+  document.getElementById('backBtn').classList.remove('hidden');
+  renderTeam(allTeam);
+}
+
+function renderTeam(data){
+  let done=0,pend=0,tt=0;
+  data.forEach(a=>{ String(a.ojt)==='1'?done++:pend++; tt+=Number(a.totalTp||0); });
+  set('teamAgents',data.length);set('teamDone',done);set('teamPending',pend);set('teamTotalTp',tt);
+  document.getElementById('teamTable').innerHTML=data.map((a,i)=>`
+    <tr>
+      <td>${i+1}</td><td>${a.name}</td><td>${a.mobile}</td><td>${a.tsm}</td>
+      <td>${String(a.ojt)==='1'?'✅ Done':'🔴 Pend'}</td>
+      <td>${a.summaryCheckin||0}</td><td>${a.summaryCommonTp||0}</td>
+      <td>${Number(a.summaryCheckin||0)===0?'⚠️ Risk':'✅ Safe'}</td>
+    </tr>`).join('');
+}
+
+function renderLeaderboard(){
+  const top=[...agents].sort((a,b)=>b.totalTp-a.totalTp).slice(0,5);
+  document.getElementById('leaderboard').innerHTML=top.map((a,i)=>`
+    <div class="lb-item">
+      <div class="lb-rk">${i+1}</div>
+      <div style="flex:1"><div class="lb-name">${a.name||'—'}</div><div class="lb-sub">${a.tsm||''}</div></div>
+      <div class="lb-stats"><div class="lb-tp">🎯 ${a.totalTp||0}</div></div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
