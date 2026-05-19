@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhonePe Rajasthan New Agent Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{
+  --pp:#5f259f;--pp2:#7c3aed;--pp3:#9333ea;
+  --green:#16a34a;--red:#dc2626;--orange:#f97316;--yellow:#d97706;--blue:#2563eb;--gold:#f59e0b;
+  --bg:#f5f0fc;--card:#ffffff;--border:#e8e0f5;
+  --txt:#1a0533;--muted:#7c6a96;--light:#b0a0cc;
+  --sh:0 2px 14px rgba(95,37,159,0.09);
+  --shm:0 4px 22px rgba(95,37,159,0.13);
+  --shl:0 8px 36px rgba(95,37,159,0.17);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;}
+.wrap{max-width:1800px;margin:auto;padding:18px;}
+
+#pageLoader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+#pageLoader.hidden{display:none!important;}
+.ld-logo{width:160px;height:auto;animation:plp 1.5s ease-in-out infinite;display:flex;align-items:center;justify-content:center;}
+.ld-logo img{width:100%;height:auto;object-fit:contain;}
+@keyframes plp{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.ld-bar{width:240px;height:5px;background:#ede8f8;border-radius:5px;overflow:hidden;}
+.ld-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--pp),var(--pp2));border-radius:5px;animation:ldfill 2s ease forwards;}
+@keyframes ldfill{to{width:100%;}}
+.ld-txt{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:1px;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#5f259f 0%,#7c3aed 55%,#9333ea 100%);padding:20px 28px;border-radius:20px;box-shadow:var(--shl);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header::before{content:'';position:absolute;width:340px;height:340px;background:radial-gradient(circle,rgba(255,255,255,0.08) 0%,transparent 70%);right:-70px;top:-130px;pointer-events:none;}
+.header-left{display:flex;align-items:center;gap:14px;position:relative;z-index:2;}
+.pp-logo{width:120px;height:40px;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:0;}
+.pp-logo img{width:100%;height:100%;object-fit:contain;filter:brightness(0) invert(1);}
+.hd-title h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.2px;}
+.hd-title p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;}
+.header-right{display:flex;gap:9px;align-items:center;position:relative;z-index:2;flex-wrap:wrap;}
+.update-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);padding:7px 13px;border-radius:50px;font-size:12px;font-weight:600;color:#fff;}
+.update-dot{width:8px;height:8px;background:#fde68a;border-radius:50%;flex-shrink:0;}
+.time-badge{background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.22);padding:7px 13px;border-radius:50px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#fff;}
+.btn-back{padding:7px 16px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);border-radius:50px;color:#fff;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;}
+.btn-back:hover{background:rgba(255,255,255,0.26);}
+
+/* BANNER */
+.sh-banner{background:linear-gradient(135deg,rgba(95,37,159,0.07),rgba(124,58,237,0.05));border:1.5px solid rgba(95,37,159,0.16);border-radius:14px;padding:12px 18px;margin-top:12px;display:flex;align-items:center;gap:10px;}
+.sh-banner-icon{font-size:20px;}
+.sh-banner-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.7px;}
+.sh-banner-name{font-size:17px;font-weight:800;color:var(--pp);margin-top:2px;}
+
+/* SUMMARY STRIP */
+.summary-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;margin-top:12px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:11px;box-shadow:var(--sh);transition:all 0.22s;}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--shm);}
+.sc-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.sc-icon.p{background:rgba(95,37,159,0.09);}
+.sc-icon.g{background:rgba(22,163,74,0.09);}
+.sc-icon.r{background:rgba(220,38,38,0.09);}
+.sc-icon.o{background:rgba(249,115,22,0.09);}
+.sc-icon.b{background:rgba(37,99,235,0.09);}
+.sc-lbl{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;}
+.sc-val{font-size:24px;font-weight:800;margin-top:2px;line-height:1;}
+.sc-val.p{color:var(--pp);}
+.sc-val.g{color:var(--green);}
+.sc-val.r{color:var(--red);}
+.sc-val.o{color:var(--orange);}
+.sc-val.b{color:var(--blue);}
+
+/* SEARCH */
+.search-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-top:12px;box-shadow:var(--sh);}
+.search-title{font-size:17px;font-weight:800;margin-bottom:12px;color:var(--pp);}
+.search-row{display:flex;gap:10px;flex-wrap:wrap;}
+.si-wrap{flex:1;position:relative;min-width:200px;}
+.si-wrap input{width:100%;padding:14px 15px 14px 46px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;color:var(--txt);font-size:14px;font-family:'Outfit',sans-serif;outline:none;transition:all 0.22s;}
+.si-wrap input::placeholder{color:var(--light);}
+.si-wrap input:focus{border-color:var(--pp2);background:#fff;box-shadow:0 0 0 3px rgba(95,37,159,0.09);}
+.si-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;}
+.btn-search{padding:14px 24px;background:var(--pp);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all 0.22s;box-shadow:0 4px 14px rgba(95,37,159,0.26);white-space:nowrap;}
+.btn-search:hover{background:#3d1566;transform:translateY(-1px);}
+.hints{margin-top:10px;display:flex;gap:7px;flex-wrap:wrap;}
+.hint{padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:50px;font-size:11px;color:var(--muted);}
+.hint strong{color:var(--pp);}
+
+/* SECTION */
+.sec-title{font-size:16px;font-weight:800;color:var(--pp);display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.sec-title::before{content:'';width:4px;height:18px;background:linear-gradient(180deg,var(--pp),var(--pp2));border-radius:4px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--sh);}
+
+/* PROFILE */
+.profile-card{background:linear-gradient(135deg,#5f259f 0%,#7c3aed 55%,#9333ea 100%);border-radius:20px;padding:26px;margin-top:12px;position:relative;overflow:hidden;box-shadow:var(--shl);}
+.profile-card::before{content:'';position:absolute;width:280px;height:280px;background:radial-gradient(circle,rgba(255,255,255,0.07) 0%,transparent 70%);right:-50px;top:-100px;pointer-events:none;}
+.prof-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;position:relative;z-index:2;}
+.prof-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.av{width:58px;height:58px;background:rgba(255,255,255,0.17);border:2px solid rgba(255,255,255,0.26);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;flex-shrink:0;}
+.ag-name{font-size:24px;font-weight:900;color:#fff;}
+.ag-sub{font-size:12px;color:rgba(255,255,255,0.68);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.rk-box{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:14px 22px;text-align:center;}
+.rk-lbl{font-size:10px;color:rgba(255,255,255,0.68);text-transform:uppercase;letter-spacing:1px;}
+.rk-num{font-size:38px;font-weight:900;color:#fde68a;margin-top:2px;line-height:1;}
+.rk-sub{font-size:10px;color:rgba(255,255,255,0.52);margin-top:3px;}
+.prof-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin-top:18px;position:relative;z-index:2;}
+.pmb{background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.13);border-radius:12px;padding:11px 14px;}
+.pmb-lbl{font-size:10px;color:rgba(255,255,255,0.6);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
+.pmb-val{font-size:14px;font-weight:700;color:#fff;margin-top:3px;}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px;}
+.kc{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:var(--sh);transition:all 0.22s;position:relative;overflow:hidden;}
+.kc:hover{transform:translateY(-2px);box-shadow:var(--shm);border-color:rgba(95,37,159,0.25);}
+.kc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pp),var(--pp2));opacity:0;transition:opacity 0.22s;}
+.kc:hover::after{opacity:1;}
+.kc-lbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.kc-val{font-size:30px;font-weight:900;color:var(--pp);margin-top:5px;line-height:1;}
+.kc-badge{display:inline-block;margin-top:7px;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700;}
+.kc-badge.g{background:rgba(22,163,74,0.09);color:var(--green);}
+.kc-badge.b{background:rgba(37,99,235,0.09);color:var(--blue);}
+.kc-badge.y{background:rgba(217,119,6,0.09);color:var(--yellow);}
+.kc-badge.p{background:rgba(95,37,159,0.09);color:var(--pp);}
+
+/* LAYOUTS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;}
+.three-col{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-top:12px;}
+@media(max-width:900px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+/* =============================================
+   CALENDAR — FULLY RESPONSIVE FIX
+   Horizontal scroll on mobile, fixed on desktop
+   ============================================= */
+.cal-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.cal-inner{min-width:min(700px,98vw);}
+.cal-headers{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:3px;}
+.cal-hdr{text-align:center;font-size:9px;font-weight:800;letter-spacing:0.5px;color:#fff;padding:5px 2px;text-transform:uppercase;background:var(--pp);border-radius:7px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;}
+.dc{background:#faf8ff;border:1.5px solid #ede8f8;border-radius:8px;padding:5px;min-height:80px;position:relative;}
+.dc.green{border-color:rgba(22,163,74,0.3);background:#f0fdf4;}
+.dc.half{border-color:rgba(217,119,6,0.3);background:#fffbeb;}
+.dc.absent{border-color:rgba(220,38,38,0.26);background:#fff5f5;}
+.dc.sunday{border-color:rgba(249,115,22,0.26);background:#fff7ed;}
+.dc.today{box-shadow:0 0 0 2px var(--pp);}
+.dc.blank{background:transparent;border-color:transparent;min-height:0;padding:0;}
+.today-p{position:absolute;top:4px;right:4px;background:var(--pp);color:#fff;font-size:8px;font-weight:800;padding:2px 5px;border-radius:5px;letter-spacing:1px;}
+.dc-top{display:flex;justify-content:space-between;align-items:center;}
+.dc-day{font-size:9px;font-weight:800;letter-spacing:0.8px;}
+.dc-num{font-size:15px;font-weight:800;}
+.dc.green .dc-day,.dc.green .dc-num{color:var(--green);}
+.dc.half .dc-day,.dc.half .dc-num{color:var(--yellow);}
+.dc.absent .dc-day,.dc.absent .dc-num{color:var(--red);}
+.dc.sunday .dc-day,.dc.sunday .dc-num{color:var(--orange);}
+.dc-tp,.dc-ci{background:#fff;border-radius:6px;padding:5px 6px;margin-top:4px;border:1px solid #f0e8ff;}
+.dc-tp-lbl,.dc-ci-lbl{font-size:8px;color:var(--light);}
+.dc-tp-val{font-size:16px;font-weight:800;margin-top:1px;}
+.dc-ci-val{font-size:12px;font-weight:700;margin-top:1px;color:var(--blue);}
+.dc.green .dc-tp-val{color:var(--green);}
+.dc.half .dc-tp-val{color:var(--yellow);}
+.dc.absent .dc-tp-val{color:var(--red);}
+.dc.sunday .dc-tp-val{color:var(--orange);}
+.dc-status{margin-top:4px;font-size:8px;font-weight:700;padding:3px 5px;border-radius:5px;text-align:center;}
+.dc.green .dc-status{background:rgba(22,163,74,0.10);color:var(--green);}
+.dc.half .dc-status{background:rgba(217,119,6,0.10);color:var(--yellow);}
+.dc.absent .dc-status{background:rgba(220,38,38,0.08);color:var(--red);}
+.dc.sunday .dc-status{background:rgba(249,115,22,0.08);color:var(--orange);}
+
+/* LEADERBOARD */
+.lb-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0e8ff;transition:all 0.2s;}
+.lb-item:last-child{border-bottom:none;}
+.lb-item:hover{background:#faf8ff;border-radius:10px;padding-left:6px;margin:0 -6px;}
+.lb-rk{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;}
+.lb-rk.gold{background:rgba(245,158,11,0.13);color:#d97706;}
+.lb-rk.silver{background:rgba(148,163,184,0.13);color:#64748b;}
+.lb-rk.bronze{background:rgba(205,127,50,0.13);color:#b45309;}
+.lb-rk.other{background:#f4f0fb;color:var(--muted);}
+.lb-name{font-size:13px;font-weight:700;color:var(--txt);}
+.lb-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.lb-stats{text-align:right;margin-left:auto;}
+.lb-tp{font-size:18px;font-weight:800;color:var(--pp);}
+.lb-ci{font-size:11px;color:var(--blue);margin-top:2px;}
+
+/* PROGRESS / HEALTH */
+.pi{margin-bottom:16px;}
+.pi:last-child{margin-bottom:0;}
+.pi-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.pi-lbl{font-size:12px;font-weight:700;color:var(--txt);}
+.pi-val{font-size:12px;font-weight:800;color:var(--pp);}
+.pi-bar{height:9px;background:#ede8f8;border-radius:50px;overflow:hidden;}
+.pi-fill{height:100%;border-radius:50px;transition:width 1s ease;}
+.pi-fill.pp{background:linear-gradient(90deg,var(--pp),var(--pp2));}
+.pi-fill.gn{background:linear-gradient(90deg,#16a34a,#22c55e);}
+.pi-note{margin-top:3px;font-size:11px;color:var(--muted);}
+.cvt-box{background:rgba(95,37,159,0.05);border:1px solid rgba(95,37,159,0.12);border-radius:12px;padding:14px 16px;margin-top:14px;}
+.cvt-title{font-size:12px;font-weight:700;color:var(--pp);margin-bottom:10px;}
+.cvt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.cvt-lbl{font-size:12px;font-weight:600;color:var(--txt);}
+.cvt-num{font-size:18px;font-weight:800;color:var(--pp);}
+.cvt-pct{font-size:13px;font-weight:700;padding:3px 10px;border-radius:50px;}
+.cvt-pct.good{background:rgba(22,163,74,0.10);color:var(--green);}
+.cvt-pct.mid{background:rgba(217,119,6,0.10);color:var(--yellow);}
+.cvt-pct.bad{background:rgba(220,38,38,0.09);color:var(--red);}
+
+/* BADGES */
+.badges-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;}
+.badge-item{background:#faf8ff;border:1.5px solid #ede8f8;border-radius:12px;padding:10px 13px;text-align:center;min-width:76px;transition:all 0.22s;}
+.badge-item:hover{transform:translateY(-2px);box-shadow:var(--sh);}
+.badge-icon{font-size:22px;}
+.badge-name{font-size:9px;color:var(--muted);margin-top:3px;font-weight:700;}
+.badge-item.earned{border-color:rgba(245,158,11,0.35);background:#fffbeb;}
+.badge-item.earned .badge-name{color:#d97706;}
+
+/* TEAM TABLE */
+.tt{width:100%;border-collapse:collapse;}
+.tt th{background:#f4f0fb;color:var(--pp);padding:10px 12px;font-size:10px;font-weight:800;text-align:left;text-transform:uppercase;letter-spacing:0.6px;}
+.tt th:first-child{border-radius:8px 0 0 8px;}
+.tt th:last-child{border-radius:0 8px 8px 0;}
+.tt td{padding:11px 12px;border-bottom:1px solid #f4f0fb;font-size:12px;color:var(--txt);}
+.tt tr:hover td{background:#faf8ff;}
+.ojt-y{background:rgba(22,163,74,0.08);color:var(--green);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;white-space:nowrap;}
+.ojt-n{background:rgba(220,38,38,0.08);color:var(--red);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;white-space:nowrap;}
+.risk-y{background:rgba(220,38,38,0.08);color:var(--red);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;}
+.risk-n{background:rgba(22,163,74,0.08);color:var(--green);padding:3px 8px;border-radius:50px;font-size:10px;font-weight:700;}
+.ph{color:var(--green);font-weight:700;}
+.pm{color:var(--yellow);font-weight:700;}
+.pl{color:var(--red);font-weight:700;}
+.sb{cursor:pointer;user-select:none;}
+.sb:hover{color:var(--pp);}
+.frow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.fi{flex:1;min-width:130px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--txt);font-size:12px;font-family:'Outfit',sans-serif;outline:none;}
+.fi:focus{border-color:var(--pp2);}
+.fs{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--txt);font-size:12px;font-family:'Outfit',sans-serif;outline:none;}
+.fs option{background:#fff;}
+.export-btn{padding:8px 14px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);border-radius:9px;color:var(--green);font-size:11px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;}
+.export-btn:hover{background:rgba(22,163,74,0.16);}
+.tbl-scroll{overflow-x:auto;border-radius:12px;}
+
+.footer{text-align:center;padding:24px 0 12px;color:var(--muted);font-size:12px;}
+.footer strong{color:var(--pp);}
+
+@media(max-width:1200px){.summary-strip{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:768px){
+  .summary-strip{grid-template-columns:repeat(2,1fr);}
+  .header{padding:14px 16px;}
+  .hd-title h1{font-size:16px;}
+}
+@media(max-width:480px){.summary-strip{grid-template-columns:1fr 1fr;}}
+
+@keyframes fu{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.fu{animation:fu 0.4s ease forwards;}
+.fu2{animation:fu 0.4s 0.07s ease forwards;opacity:0;}
+.fu3{animation:fu 0.4s 0.14s ease forwards;opacity:0;}
+.fu4{animation:fu 0.4s 0.21s ease forwards;opacity:0;}
+.hidden{display:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#f4f0fb;}
+::-webkit-scrollbar-thumb{background:rgba(95,37,159,0.25);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="pageLoader">
+  <div class="ld-logo">
+    <img src="https://www.phonepe.com/webstatic/static/media/PhonePe_Logo.4d77d3e7.svg" alt="PhonePe">
+  </div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-txt">Rajasthan New Agent Dashboard</div>
+</div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header fu">
+    <div class="header-left">
+      <div class="pp-logo">
+        <img src="https://www.phonepe.com/webstatic/static/media/PhonePe_Logo.4d77d3e7.svg" alt="PhonePe">
+      </div>
+      <div class="hd-title">
+        <h1>Rajasthan New Agent Dashboard</h1>
+        <p>Rajasthan Field Sales &bull; New Agent Tracking</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="update-badge">
+        <div class="update-dot"></div>
+        <span>Sheet Updated: <strong id="lastUpdated">Loading...</strong></span>
+      </div>
+      <div class="time-badge" id="liveTime">--:--:--</div>
+      <button class="btn-back hidden" id="backBtn" onclick="goBack()">&#8592; Back</button>
+    </div>
+  </div>
+
+  <!-- TEAM BANNER -->
+  <div id="teamBanner" class="sh-banner hidden">
+    <div class="sh-banner-icon" id="bannerIcon">&#127970;</div>
+    <div>
+      <div class="sh-banner-label" id="bannerLabel">State Head</div>
+      <div class="sh-banner-name" id="bannerName">&#8212;</div>
+    </div>
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip fu2" id="summaryStrip">
+    <div class="sc"><div class="sc-icon p">&#128101;</div><div><div class="sc-lbl">Total Agents</div><div class="sc-val p" id="totalAgents">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon g">&#9989;</div><div><div class="sc-lbl">OJT Done</div><div class="sc-val g" id="ojtDone">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon r">&#128308;</div><div><div class="sc-lbl">OJT Pending</div><div class="sc-val r" id="ojtPending">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon o">&#9888;&#65039;</div><div><div class="sc-lbl">At Risk</div><div class="sc-val o" id="riskAgents">&#8212;</div></div></div>
+    <div class="sc"><div class="sc-icon b">&#128293;</div><div><div class="sc-lbl">Active Agents</div><div class="sc-val b" id="activeAgents">&#8212;</div></div></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-card fu3" id="searchCard">
+    <div class="search-title">&#128269; Login to Dashboard</div>
+    <div class="search-row">
+      <div class="si-wrap">
+        <span class="si-icon">&#128272;</span>
+        <input type="text" id="searchInput" placeholder="Enter Mobile / TSM ID / ASM ID / SH ID" onkeydown="if(event.key==='Enter')searchDashboard()">
+      </div>
+      <button class="btn-search" onclick="searchDashboard()">Open Dashboard &#8594;</button>
+    </div>
+    <div class="hints">
+      <div class="hint"><strong>10 digits</strong> &#8594; Agent</div>
+      <div class="hint"><strong>TSM ID</strong> &#8594; Team View</div>
+      <div class="hint"><strong>4xxxxx</strong> &#8594; ASM View</div>
+      <div class="hint"><strong>1xxxxx</strong> &#8594; State Head View</div>
+    </div>
+  </div>
+
+  <!-- AGENT DASHBOARD -->
+  <div id="agentDashboard" class="hidden">
+    <div class="profile-card fu">
+      <div class="prof-top">
+        <div class="prof-left">
+          <div class="av" id="agentAvatar">&#128100;</div>
+          <div>
+            <div class="ag-name" id="agentName">&#8212;</div>
+            <div class="ag-sub"><span id="agentOjtBadge"></span><span id="agentRiskBadge"></span></div>
+          </div>
+        </div>
+        <div class="rk-box">
+          <div class="rk-lbl">&#127942; Rajasthan Rank</div>
+          <div class="rk-num" id="agentRank">#&#8212;</div>
+          <div class="rk-sub">Based on Total TP</div>
+        </div>
+      </div>
+      <div class="prof-meta">
+        <div class="pmb"><div class="pmb-lbl">&#128241; Mobile</div><div class="pmb-val" id="agentMobile">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#128084; TSM</div><div class="pmb-val" id="tsmName">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#128104;&#8205;&#128188; ASM</div><div class="pmb-val" id="asmName">&#8212;</div></div>
+        <div class="pmb"><div class="pmb-lbl">&#127970; State Head</div><div class="pmb-val" id="shName">&#8212;</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid fu2">
+      <div class="kc"><div class="kc-lbl">&#127919; Total TP</div><div class="kc-val" id="totalTp">0</div><div class="kc-badge p">Month</div></div>
+      <div class="kc"><div class="kc-lbl">&#128205; Active Days</div><div class="kc-val" id="commonCheckin">0</div><div class="kc-badge b">Checkins</div></div>
+      <div class="kc"><div class="kc-lbl">&#128293; Common TP</div><div class="kc-val" id="commonTp">0</div><div class="kc-badge g">Score</div></div>
+      <div class="kc"><div class="kc-lbl">&#128202; Avg TP/Day</div><div class="kc-val" id="avgDailyTp">0</div><div class="kc-badge b">Per Active Day</div></div>
+      <div class="kc"><div class="kc-lbl">&#127942; Best Day TP</div><div class="kc-val" id="bestDayTp">0</div><div class="kc-badge g">Personal Best</div></div>
+      
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="card fu3" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#128197; Monthly Performance Calendar</div>
+        <div id="calMonthLabel" style="font-size:12px;font-weight:700;color:var(--muted);"></div>
+      </div>
+      <div class="cal-wrap">
+        <div class="cal-inner">
+          <div class="cal-headers">
+            <div class="cal-hdr">SUN</div><div class="cal-hdr">MON</div><div class="cal-hdr">TUE</div>
+            <div class="cal-hdr">WED</div><div class="cal-hdr">THU</div><div class="cal-hdr">FRI</div><div class="cal-hdr">SAT</div>
+          </div>
+          <div class="cal-grid" id="calendarContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERFORMANCE HEALTH -->
+    <div class="card fu4" style="margin-top:12px;">
+      <div class="sec-title">&#128202; Performance Health</div>
+      <div id="healthBars"></div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="card fu" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#127885; Achievements</div>
+        <span style="font-size:11px;color:var(--muted);">Earned this month</span>
+      </div>
+      <div class="badges-row" id="badgesRow"></div>
+    </div>
+
+    <!-- CHART + LEADERBOARD -->
+    <div class="three-col fu2">
+      <div class="card">
+        <div class="sec-title">&#128200; TP Trend &#8212; Last 14 Days</div>
+        <canvas id="tpChart" height="120"></canvas>
+      </div>
+      <div class="card">
+        <div class="sec-title">&#127942; Top 5 &#8212; Rajasthan</div>
+        <div id="leaderboard"></div>
+      </div>
+    </div>
+
+    <div class="card fu3" style="margin-top:12px;">
+      <div class="sec-title">&#128202; Weekly TP Breakdown</div>
+      <canvas id="weeklyChart" height="85"></canvas>
+    </div>
+  </div>
+
+  <!-- TEAM DASHBOARD -->
+  <div id="teamDashboard" class="hidden">
+    <div class="kpi-grid fu" style="margin-top:12px;">
+      <div class="kc"><div class="kc-lbl">&#128101; Total Agents</div><div class="kc-val" id="teamAgents">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#9989; OJT Done</div><div class="kc-val" style="color:var(--green)" id="teamDone">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128308; OJT Pending</div><div class="kc-val" style="color:var(--red)" id="teamPending">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#9888; At Risk</div><div class="kc-val" style="color:var(--orange)" id="teamRisk">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#128293; Active</div><div class="kc-val" style="color:var(--blue)" id="teamActive">0</div></div>
+      <div class="kc"><div class="kc-lbl">&#127919; Total TP</div><div class="kc-val" id="teamTotalTp">0</div></div>
+    </div>
+    <div class="two-col fu2">
+      <div class="card">
+        <div class="sec-title">&#128202; OJT Completion</div>
+        <canvas id="teamDonut" height="180" style="max-width:190px;margin:12px auto;display:block;"></canvas>
+      </div>
+      <div class="card">
+        <div class="sec-title">&#128200; Top Agents TP</div>
+        <canvas id="teamBar" height="180"></canvas>
+      </div>
+    </div>
+    <div class="card fu3" style="margin-top:12px;">
+      <div class="sec-hdr">
+        <div class="sec-title">&#128203; Team Agent Details</div>
+        <button class="export-btn" onclick="exportCSV()">&#11015; Export CSV</button>
+      </div>
+      <div class="frow">
+        <input class="fi" id="filterName" placeholder="&#128269; Search agent..." oninput="filterTeam()">
+        <select class="fs" id="filterOjt" onchange="filterTeam()">
+          <option value="">All OJT</option><option value="done">Done</option><option value="pending">Pending</option>
+        </select>
+        <select class="fs" id="filterRisk" onchange="filterTeam()">
+          <option value="">All Status</option><option value="risk">At Risk</option><option value="active">Active</option>
+        </select>
+      </div>
+      <div class="tbl-scroll">
+        <table class="tt">
+          <thead>
+            <tr>
+              <th>#</th><th>Agent Name</th><th>Mobile</th>
+              <th id="col_tsm" class="sb" onclick="sortTeam('tsm')">TSM &#8597;</th>
+              <th id="col_asm" class="hidden sb" onclick="sortTeam('asm')">ASM &#8597;</th>
+              <th>OJT</th>
+              <th class="sb" onclick="sortTeam('checkin')">Checkins &#8597;</th>
+              <th class="sb" onclick="sortTeam('ctp')">Common TP &#8597;</th>
+              <th>Risk</th><th>Perf</th>
+            </tr>
+          </thead>
+          <tbody id="teamTable"></tbody>
+        </table>
+      </div>
+      <div id="teamPag" style="margin-top:10px;text-align:center;color:var(--muted);font-size:12px;"></div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by <strong>Rahul Bhatt</strong> &bull; Regional Capability Manager &bull; PhonePe</div>
+</div>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbx6YLBLALuLIPDFlhWxGYsOuzsQk-q1NXJoVpUqtsUWg8Cj8jsU8A7-aXDZc0oV1KuKJg/exec";
+let agents=[],allTeam=[],viewType='',sortDir={};
+let tpCI=null,wkCI=null,tdCI=null,tbCI=null;
+
+// CLOCK
+setInterval(()=>{document.getElementById('liveTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
+
+const showL=()=>document.getElementById('pageLoader').classList.remove('hidden');
+const hideL=()=>document.getElementById('pageLoader').classList.add('hidden');
+const set=(id,v)=>document.getElementById(id).textContent=v;
+
+async function loadData(){
+  showL();
+  try{
+    const r=await fetch(API);
+    const raw=await r.json();
+    agents=raw;
+    // Try to get last modified from response headers or data
+    // Sheet returns data; we show fetch time as proxy
+    // Check if API returns a metadata field
+    if(raw.lastModified){
+      document.getElementById('lastUpdated').textContent=raw.lastModified;
+    } else {
+      // Use Google Sheets last edit via separate call
+      fetchSheetLastUpdated();
+    }
+    loadSummary();
+    renderLeaderboard();
+  }catch(e){console.error(e);}
+  hideL();
+}
+
+async function fetchSheetLastUpdated(){
+  // The Apps Script endpoint - add ?action=lastUpdated to get sheet modified time
+  try{
+    const r=await fetch(API+'?action=lastUpdated');
+    const d=await r.json();
+    if(d && d.lastUpdated){
+      document.getElementById('lastUpdated').textContent=d.lastUpdated;
+    } else {
+      // fallback: show today date with note
+      const now=new Date();
+      document.getElementById('lastUpdated').textContent=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})+' (manual)';
+    }
+  }catch(e){
+    const now=new Date();
+    document.getElementById('lastUpdated').textContent=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  }
+}
+
+loadData();
+
+function loadSummary(){
+  let done=0,pend=0,risk=0,active=0;
+  agents.forEach(a=>{String(a.ojt)==='1'?done++:pend++;Number(a.summaryCheckin||0)===0?risk++:active++;});
+  set('totalAgents',agents.length);set('ojtDone',done);set('ojtPending',pend);set('riskAgents',risk);set('activeAgents',active);
+}
+
+async function searchDashboard(){
+  const v=document.getElementById('searchInput').value.trim();
+  if(!v){alert('Enter Login ID');return;}
+  showL();
+  if(v.length>=10&&/^\d+$/.test(v))await openAgent(v);
+  else await openTeam(v);
+  hideL();
+}
+
+function goBack(){
+  ['agentDashboard','teamDashboard'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='');
+  document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('teamBanner').classList.add('hidden');
+  document.getElementById('searchInput').value='';
+  viewType='';
+}
+
+async function openAgent(mobile){
+  try{
+    const r=await fetch(API+'?mobile='+mobile);
+    const data=await r.json();
+    if(!data.length){alert('No Agent Found');return;}
+    const a=data[0];
+    ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('agentDashboard').classList.remove('hidden');
+    document.getElementById('teamDashboard').classList.add('hidden');
+    document.getElementById('teamBanner').classList.add('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+
+    const ini=(a.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    set('agentAvatar',ini||'AG');
+    set('agentName',a.name||'—');set('agentMobile',a.mobile||'—');
+    set('tsmName',a.tsm||'—');set('asmName',a.asm||'—');set('shName',a.sh||'—');
+
+    const ojtOk=String(a.ojt)==='1';
+    document.getElementById('agentOjtBadge').innerHTML=ojtOk
+      ?`<span style="background:rgba(22,163,74,0.11);color:#16a34a;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;">✅ OJT Done</span>`
+      :`<span style="background:rgba(220,38,38,0.09);color:#dc2626;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;">🔴 OJT Pending</span>`;
+
+    const tpA=a.daywiseTp||[],ciA=a.daywiseCheckin||[],ctpA=a.daywiseCommonTp||[];
+    let tt=0,tc=0,ct=0;
+    tpA.forEach(v=>tt+=Number(v||0));
+    ciA.forEach(v=>{if(Number(v||0)>0)tc++;});
+    ctpA.forEach(v=>ct+=Number(v||0));
+
+    const todayIdx=new Date().getDate()-1;
+    let best=0,adays=0;
+    tpA.forEach(v=>{const n=Number(v||0);if(n>best)best=n;if(n>0)adays++;});
+    const avg=adays>0?(tt/adays).toFixed(1):0;
+
+    let streak=0;
+    for(let i=todayIdx;i>=0;i--){
+      if(new Date(new Date().getFullYear(),new Date().getMonth(),i+1).getDay()===0)continue;
+      if(Number(ciA[i]||0)>0)streak++;else break;
+    }
+    set('totalTp',tt);set('commonCheckin',tc);set('commonTp',ct);
+    set('avgDailyTp',avg);set('bestDayTp',best);
+
+    // Rajasthan rank — total TP based
+    const sorted=[...agents].sort((x,y)=>{
+      const xt=(x.daywiseTp||[]).reduce((s,v)=>s+Number(v||0),0);
+      const yt=(y.daywiseTp||[]).reduce((s,v)=>s+Number(v||0),0);
+      return yt-xt;
+    });
+    const rank=sorted.findIndex(x=>x.mobile===a.mobile)+1;
+    set('agentRank','#'+rank);
+
+    const isRisk=Number(a.summaryCheckin||0)===0;
+    document.getElementById('agentRiskBadge').innerHTML=isRisk
+      ?`<span style="background:rgba(220,38,38,0.09);color:#dc2626;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;">⚠️ At Risk</span>`:'';
+
+    renderCal(tpA,ciA);
+    renderHealth(tt,tc,todayIdx+1);
+    renderBadges(tt,ct,streak,best,rank,ojtOk);
+    renderTpChart(tpA);
+    renderWeekly(tpA);
+  }catch(e){console.error(e);alert('Error loading agent');}
+}
+
+// CALENDAR — Absent/Half/Present logic, proper grid
+function renderCal(tpA,ciA){
+  const container=document.getElementById('calendarContainer');
+  container.innerHTML='';
+  const now=new Date();
+  const today=now.getDate(),mo=now.getMonth(),yr=now.getFullYear();
+  const mnames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent=mnames[mo]+' '+yr;
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const firstDay=new Date(yr,mo,1).getDay();
+  // blank cells for alignment
+  for(let b=0;b<firstDay;b++){
+    container.innerHTML+=`<div class="dc blank"></div>`;
+  }
+  for(let i=1;i<=today;i++){
+    const d=new Date(yr,mo,i);
+    const dn=days[d.getDay()];
+    const tp=Number(tpA[i-1]||0);
+    const ci=Number(ciA[i-1]||0);
+    let cls,status;
+    if(dn==='Sun'){
+      cls='sunday'; status='Sunday';
+    } else if(tp===0){
+      cls='absent'; status='Absent';
+    } else if(tp>=1 && tp<=4){
+      cls='absent'; status='Absent';
+    } else if(tp>=5 && tp<=9){
+      cls='half'; status='Half Day';
+    } else {
+      cls='green'; status='Present';
+    }
+    const isToday=i===today;
+    container.innerHTML+=`
+      <div class="dc ${cls}${isToday?' today':''}">
+        ${isToday?'<div class="today-p">TODAY</div>':''}
+        <div class="dc-top"><span class="dc-day">${dn}</span><span class="dc-num">${i}</span></div>
+        <div class="dc-tp"><div class="dc-tp-lbl">🎯 TP</div><div class="dc-tp-val">${tp}</div></div>
+        <div class="dc-ci"><div class="dc-ci-lbl">📍 Check-in</div><div class="dc-ci-val">${ci}</div></div>
+        <div class="dc-status">${status}</div>
+      </div>`;
+  }
+}
+
+// HEALTH
+function renderHealth(totalTp,checkin,daysElapsed){
+  const maxTp=daysElapsed*10;
+  const tpPct=maxTp>0?Math.min(100,Math.round((totalTp/maxTp)*100)):0;
+  const ciPct=daysElapsed>0?Math.min(100,Math.round((checkin/daysElapsed)*100)):0;
+  const ratio=checkin>0?Math.round((totalTp/checkin)*10)/10:0;
+  const ratioPct=Math.min(100,Math.round((ratio/10)*100));
+  const ratioCls=ratioPct>=80?'good':ratioPct>=50?'mid':'bad';
+  document.getElementById('healthBars').innerHTML=`
+    <div class="pi">
+      <div class="pi-hdr"><span class="pi-lbl">🎯 TP Achievement Rate</span><span class="pi-val">${tpPct}%</span></div>
+      <div class="pi-bar"><div class="pi-fill pp" style="width:${tpPct}%"></div></div>
+      <div class="pi-note">${totalTp} TP out of ${maxTp} target (${daysElapsed} days × 10)</div>
+    </div>
+    <div class="pi">
+      <div class="pi-hdr"><span class="pi-lbl">📍 Checkin Rate</span><span class="pi-val">${ciPct}%</span></div>
+      <div class="pi-bar"><div class="pi-fill gn" style="width:${ciPct}%"></div></div>
+      <div class="pi-note">${checkin} active days out of ${daysElapsed} days</div>
+    </div>
+    <div class="cvt-box">
+      <div class="cvt-title">📊 Checkin vs TP Efficiency</div>
+      <div class="cvt-row">
+        <div><div class="cvt-lbl">Avg TP per Checkin Day</div><div class="cvt-num">${ratio}</div></div>
+        <div class="cvt-pct ${ratioCls}">${ratioPct}% Efficiency</div>
+      </div>
+      <div class="pi-bar" style="margin-top:6px;"><div class="pi-fill pp" style="width:${ratioPct}%"></div></div>
+      <div class="pi-note">Total TP ${totalTp} ÷ ${checkin} checkin days</div>
+    </div>`;
+}
+
+function renderBadges(tt,ct,streak,best,rank,ojtOk){
+  const bs=[
+    {icon:'🎓',name:'OJT Done',e:ojtOk},
+    {icon:'🔟',name:'10+ TP Day',e:best>=10},
+    {icon:'💯',name:'100 TP',e:tt>=100},
+    {icon:'🔥',name:'5-Day Streak',e:streak>=5},
+    {icon:'👑',name:'Top 10',e:rank<=10},
+    {icon:'⭐',name:'Top 50',e:rank<=50},
+    {icon:'🚀',name:'50+ Common',e:ct>=50},
+    {icon:'💎',name:'200 TP',e:tt>=200},
+  ];
+  document.getElementById('badgesRow').innerHTML=bs.map(b=>
+    `<div class="badge-item ${b.e?'earned':''}">
+      <div class="badge-icon" style="filter:${b.e?'none':'grayscale(1) opacity(0.25)'}">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+    </div>`).join('');
+}
+
+function renderTpChart(tpA){
+  if(tpCI){tpCI.destroy();tpCI=null;}
+  const today=new Date().getDate(),start=Math.max(1,today-13);
+  const labels=[],vals=[];
+  for(let i=start;i<=today;i++){labels.push(i);vals.push(Number(tpA[i-1]||0));}
+  const ctx=document.getElementById('tpChart').getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,200);
+  g.addColorStop(0,'rgba(95,37,159,0.14)');g.addColorStop(1,'rgba(95,37,159,0)');
+  tpCI=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:vals,borderColor:'#5f259f',backgroundColor:g,borderWidth:2.5,pointBackgroundColor:'#5f259f',pointRadius:4,pointHoverRadius:7,fill:true,tension:0.4}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{family:'Outfit'}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{family:'Outfit'}}}}}});
+}
+
+function renderWeekly(tpA){
+  if(wkCI){wkCI.destroy();wkCI=null;}
+  const today=new Date().getDate();
+  const wt=[0,0,0,0];
+  for(let i=0;i<today;i++){const w=Math.floor(i/7);if(w<4)wt[w]+=Number(tpA[i]||0);}
+  const ctx=document.getElementById('weeklyChart').getContext('2d');
+  wkCI=new Chart(ctx,{type:'bar',data:{labels:['Week 1','Week 2','Week 3','Week 4'],datasets:[{data:wt,backgroundColor:['rgba(95,37,159,0.6)','rgba(124,58,237,0.55)','rgba(34,197,94,0.55)','rgba(245,158,11,0.55)'],borderRadius:10,borderWidth:0}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{family:'Outfit'}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{family:'Outfit'}}}}}});
+}
+
+function renderLeaderboard(){
+  const top=[...agents].sort((a,b)=>{
+    const at=(a.daywiseTp||[]).reduce((s,v)=>s+Number(v||0),0);
+    const bt=(b.daywiseTp||[]).reduce((s,v)=>s+Number(v||0),0);
+    return bt-at;
+  }).slice(0,5);
+  const rk=['gold','silver','bronze','other','other'],md=['🥇','🥈','🥉','4','5'];
+  document.getElementById('leaderboard').innerHTML=top.map((a,i)=>`
+    <div class="lb-item">
+      <div class="lb-rk ${rk[i]}">${md[i]}</div>
+      <div style="flex:1"><div class="lb-name">${a.name||'—'}</div><div class="lb-sub">${a.tsm||''}${a.asm?' · '+a.asm:''}</div></div>
+      <div class="lb-stats">
+        <div class="lb-tp">🎯 ${(a.daywiseTp||[]).reduce((s,v)=>s+Number(v||0),0)}</div>
+        <div class="lb-ci">📍 ${a.summaryCheckin||0}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function openTeam(input){
+  try{
+    let url;
+    if(input.startsWith('4')){url=API+'?asmid='+input;viewType='asm';}
+    else if(input.startsWith('1')){url=API+'?shid='+input;viewType='sh';}
+    else{url=API+'?tsmid='+input;viewType='tsm';}
+    const r=await fetch(url);
+    allTeam=await r.json();
+    if(!allTeam.length){alert('No Team Found');return;}
+    ['searchCard','summaryStrip'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('teamDashboard').classList.remove('hidden');
+    document.getElementById('agentDashboard').classList.add('hidden');
+    document.getElementById('backBtn').classList.remove('hidden');
+
+    // Banner with name
+    const banner=document.getElementById('teamBanner');
+    banner.classList.remove('hidden');
+    const s=allTeam[0];
+    if(viewType==='sh'){
+      document.getElementById('bannerIcon').textContent='🏢';
+      document.getElementById('bannerLabel').textContent='State Head';
+      document.getElementById('bannerName').textContent=s.sh||'—';
+    } else if(viewType==='asm'){
+      document.getElementById('bannerIcon').textContent='👨‍💼';
+      document.getElementById('bannerLabel').textContent='Area Sales Manager';
+      document.getElementById('bannerName').textContent=s.asm||'—';
+    } else {
+      document.getElementById('bannerIcon').textContent='👔';
+      document.getElementById('bannerLabel').textContent='Territory Sales Manager';
+      document.getElementById('bannerName').textContent=s.tsm||'—';
+    }
+
+    document.getElementById('col_tsm').classList.remove('hidden');
+    if(viewType==='sh') document.getElementById('col_asm').classList.remove('hidden');
+    else document.getElementById('col_asm').classList.add('hidden');
+
+    renderTeam(allTeam);
+  }catch(e){console.error(e);alert('Error loading team');}
+}
+
+function renderTeam(data){
+  let done=0,pend=0,risk=0,active=0,tt=0;
+  data.forEach(a=>{
+    String(a.ojt)==='1'?done++:pend++;
+    Number(a.summaryCheckin||0)===0?risk++:active++;
+    tt+=Number(a.summaryCommonTp||0);
+  });
+  set('teamAgents',data.length);set('teamDone',done);set('teamPending',pend);
+  set('teamRisk',risk);set('teamActive',active);set('teamTotalTp',tt);
+  renderTeamTable(data);
+  renderTeamCharts(done,pend,data);
+}
+
+function renderTeamTable(data){
+  const showAsm=viewType==='sh';
+  let sorted=[...data];
+  if(viewType==='sh') sorted.sort((a,b)=>(a.asm||'').localeCompare(b.asm||'')||(a.tsm||'').localeCompare(b.tsm||''));
+  else if(viewType==='asm') sorted.sort((a,b)=>(a.tsm||'').localeCompare(b.tsm||''));
+
+  document.getElementById('teamTable').innerHTML=sorted.map((a,i)=>{
+    const ci=Number(a.summaryCheckin||0);
+    const ctp=Number(a.summaryCommonTp||0);
+    const isRisk=ci===0;
+    const pc=ctp>=50?'ph':ctp>=20?'pm':'pl';
+    return `<tr>
+      <td style="color:var(--muted);font-size:11px;">${i+1}</td>
+      <td style="font-weight:700;">${a.name||'—'}</td>
+      <td style="color:var(--muted);font-size:11px;">${a.mobile||'—'}</td>
+      <td style="font-weight:600;">${a.tsm||'—'}</td>
+      ${showAsm?`<td style="font-weight:600;">${a.asm||'—'}</td>`:''}
+      <td>${String(a.ojt)==='1'?'<span class="ojt-y">✅ Done</span>':'<span class="ojt-n">🔴 Pending</span>'}</td>
+      <td style="font-weight:700;color:var(--blue);">${ci}</td>
+      <td class="${pc}">${ctp}</td>
+      <td>${isRisk?'<span class="risk-y">⚠️ Risk</span>':'<span class="risk-n">✅ Safe</span>'}</td>
+      <td class="${pc}">${ctp>=50?'🔥 High':ctp>=20?'⚡ Mid':'📉 Low'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('teamPag').textContent=`Showing ${sorted.length} agents`;
+}
+
+function filterTeam(){
+  const nm=document.getElementById('filterName').value.toLowerCase();
+  const oj=document.getElementById('filterOjt').value;
+  const rk=document.getElementById('filterRisk').value;
+  const f=allTeam.filter(a=>{
+    const n=!nm||(a.name||'').toLowerCase().includes(nm);
+    const o=!oj||(oj==='done'?String(a.ojt)==='1':String(a.ojt)!=='1');
+    const r=!rk||(rk==='risk'?Number(a.summaryCheckin||0)===0:Number(a.summaryCheckin||0)>0);
+    return n&&o&&r;
+  });
+  renderTeamTable(f);
+}
+
+function sortTeam(field){
+  sortDir[field]=!sortDir[field];
+  const s=[...allTeam].sort((a,b)=>{
+    if(field==='tsm')return sortDir[field]?(a.tsm||'').localeCompare(b.tsm||''):(b.tsm||'').localeCompare(a.tsm||'');
+    if(field==='asm')return sortDir[field]?(a.asm||'').localeCompare(b.asm||''):(b.asm||'').localeCompare(a.asm||'');
+    const av=field==='checkin'?Number(a.summaryCheckin||0):Number(a.summaryCommonTp||0);
+    const bv=field==='checkin'?Number(b.summaryCheckin||0):Number(b.summaryCommonTp||0);
+    return sortDir[field]?bv-av:av-bv;
+  });
+  renderTeamTable(s);
+}
+
+function exportCSV(){
+  const rows=[['Name','Mobile','TSM','ASM','OJT','Checkins','Common TP','Risk']];
+  allTeam.forEach(a=>rows.push([a.name||'',a.mobile||'',a.tsm||'',a.asm||'',
+    String(a.ojt)==='1'?'Done':'Pending',a.summaryCheckin||0,a.summaryCommonTp||0,
+    Number(a.summaryCheckin||0)===0?'Risk':'Safe']));
+  const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+  const el=document.createElement('a');
+  el.href=URL.createObjectURL(blob);el.download='team.csv';el.click();
+}
+
+function renderTeamCharts(done,pend,data){
+  if(tdCI){tdCI.destroy();tdCI=null;}
+  if(tbCI){tbCI.destroy();tbCI=null;}
+  const ctx1=document.getElementById('teamDonut').getContext('2d');
+  tdCI=new Chart(ctx1,{type:'doughnut',data:{labels:['OJT Done','OJT Pending'],datasets:[{data:[done,pend],backgroundColor:['rgba(22,163,74,0.65)','rgba(220,38,38,0.40)'],borderColor:['#16a34a','#dc2626'],borderWidth:2}]},options:{plugins:{legend:{labels:{color:'#3d1566',font:{family:'Outfit',weight:'600'}}}},cutout:'65%'}});
+  const top=[...data].sort((a,b)=>Number(b.summaryCommonTp||0)-Number(a.summaryCommonTp||0)).slice(0,10);
+  const ctx2=document.getElementById('teamBar').getContext('2d');
+  tbCI=new Chart(ctx2,{type:'bar',data:{labels:top.map(a=>(a.name||'').split(' ')[0]),datasets:[{data:top.map(a=>Number(a.summaryCommonTp||0)),backgroundColor:'rgba(95,37,159,0.50)',borderRadius:8,borderWidth:0}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{size:10,family:'Outfit'}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9c87b8',font:{family:'Outfit'}}}}}});
+}
+</script>
+</body>
+</html>
